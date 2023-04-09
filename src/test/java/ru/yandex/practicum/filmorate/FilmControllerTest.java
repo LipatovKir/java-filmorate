@@ -64,7 +64,7 @@ class FilmControllerTest {
     public void shouldCreateLong199Description() {
         Film film = new Film(null, newFilmName, "Описание фильма очень длинное описание фильма очень длинное " +
                 "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
-                "Описание фильма очень длинное Описание фильма оч", correctReleaseDate, 104);
+                "Описание фильма очень длинное Описание фильма ", correctReleaseDate, 104);
         filmController.createFilm(film);
         assertEquals(1, filmController.films.size());
     }
