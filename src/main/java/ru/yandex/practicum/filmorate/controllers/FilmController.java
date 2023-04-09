@@ -50,9 +50,9 @@ public class FilmController {
             throw new ValidationException("Некорректные данные фильма");
         }
     }
-    
-    @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+  
+  @PutMapping
+  public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
         } else {
