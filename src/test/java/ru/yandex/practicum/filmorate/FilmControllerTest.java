@@ -45,11 +45,11 @@ class FilmControllerTest {
         assertTrue(filmController.films.isEmpty());
     }
 
-   @Test
+  @Test
     public void shouldNotCreateLongDescription() {
         Film film = new Film(null, newFilmName, "Описание фильма очень длинное описание фильма очень длинное " +
                 "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
-                "Описание фильма очень длинное Описание фильма очень длинное ", correctReleaseDate, 104);
+                "Описание фильма очень длинное Описание фильма очен ", correctReleaseDate, 104);
         assertThrows(
                 ValidationException.class,
                 () -> {
