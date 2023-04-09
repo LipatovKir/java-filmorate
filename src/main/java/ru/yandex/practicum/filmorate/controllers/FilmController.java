@@ -4,24 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
@@ -62,16 +52,17 @@ public class FilmController {
             throw new ValidationException("Некорректные данные фильма");
         }
     }
-    
+
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
-            log.info("Обновлено описание фильма: {}", film.getName());
             films.put(film.getId(), film);
-            return film;
         } else {
             throw new ValidationException("Такого фильма нет в списке. ");
         }
+        log.info("Обновлено описание фильма: {}", film.getName());
+        films.put(film.getId(), film);
+        return film;
     }
 
     private boolean validateFilm(Film film) {
