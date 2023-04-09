@@ -66,13 +66,12 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
+            log.info("Обновлено описание фильма: {}", film.getName());
             films.put(film.getId(), film);
+            return film;
         } else {
             throw new ValidationException("Такого фильма нет в списке. ");
         }
-        log.info("Обновлено описание фильма: {}", film.getName());
-        films.put(film.getId(), film);
-        return film;
     }
 
     private boolean validateFilm(Film film) {
