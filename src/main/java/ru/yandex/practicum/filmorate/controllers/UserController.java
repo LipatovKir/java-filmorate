@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,13 +11,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     public final Map<Integer, User> users = new HashMap<>();
     private static int id = 1;
+    private final LocalDate currentTime = LocalDate.now();
 
     private static int getId() {
         return id++;
@@ -34,22 +35,12 @@ public class UserController {
 
     @PostMapping
     public User  createUser(@Valid @RequestBody User user) {
-        LocalDate currentTime = LocalDate.now();
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.info("Электронная почта некорректна или не содержит символ @");
-            throw new ValidationException("Электронная почта некорректна или не содержит символ @");
-        } else if (user.getLogin() == null || user.getEmail().isBlank() || user.getLogin().contains(" ")) {
-            log.info("Логин некорректен. ");
-            throw new ValidationException("Логин некорректен. ");
-        }  else if (user.getBirthday().isAfter(currentTime)) {
-            log.info("Дата рождения некорректна. ");
-            throw new ValidationException("Дата рождения некорректна. ");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.debug("Имя не может быть пустым ли указано некорректно. Имя присвоено по умолчанию: {}", user.getLogin());
-            user = new User(getId(), user.getEmail(), user.getLogin(), user.getLogin(), user.getBirthday());
+        validateUser(user);
+        if (StringUtils.isBlank(user.getName())) {
+           log.debug("Имя не может быть пустым ли указано некорректно. Имя присвоено по умолчанию: {}", user.getLogin());
+           user = new User(getId(), user.getEmail(), user.getLogin(), user.getLogin(), user.getBirthday());
         } else {
-            user = new User(getId(), user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
+           user = new User(getId(), user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
         }
         users.put(user.getId(), user);
         log.info("Добавлен новый пользователь: {}", user.getLogin());
@@ -66,4 +57,18 @@ public class UserController {
         log.info("Обновлены данные пользователя: {}", user.getLogin());
         return user;
     }
-}
+
+    private void validateUser(User user) {
+        if (StringUtils.isBlank(user.getEmail()) || !StringUtils.containsAny(user.getEmail(), "@")) {
+            log.info("Электронная почта некорректна или не содержит символ @");
+            throw new ValidationException("Электронная почта некорректна или не содержит символ @");
+        } else if (user.getLogin() == null || user.getEmail().isBlank() || user.getLogin().contains(" ")) {
+            log.info("Логин некорректен. ");
+            throw new ValidationException("Логин некорректен. ");
+        }  else if (user.getBirthday().isAfter(currentTime)) {
+            log.info("Дата рождения некорректна. ");
+            throw new ValidationException("Дата рождения некорректна. ");
+        }
+        }
+    }
+

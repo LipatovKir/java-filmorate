@@ -10,13 +10,14 @@ import java.time.Month;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final LocalDate startDate = LocalDate.of(1895,  Month.DECEMBER,28);
+    private static final LocalDate startDate = LocalDate.of(1895, Month.DECEMBER, 28);
     public final Map<Integer, Film> films = new HashMap<>();
     private static int id = 1;
 
@@ -35,19 +36,7 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.info("Нет названия фильма.");
-            throw new ValidationException("Нет названия фильма.");
-        } else if (film.getDescription() != null && film.getDescription().length() > 200) {
-            log.info("Описание фильма превышает 200 символов.");
-            throw new ValidationException("Описание фильма превышает 200 символов.");
-        } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-            log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-            throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-        } else if (film.getDuration() != null && film.getDuration() <= 0) {
-            log.info("Продолжительность фильма должна быть положительной");
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
-        }
+        validateFilm(film);
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
             log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
             throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
@@ -68,5 +57,20 @@ public class FilmController {
         log.info("Обновлено описание фильма: {}", film.getName());
         films.put(film.getId(), film);
         return film;
+    }
+
+    private void validateFilm(Film film) {
+        if (StringUtils.isBlank(film.getName())) {
+            log.info("Нет названия фильма.");
+            throw new ValidationException("Нет названия фильма.");
+        } else if (StringUtils.isNotEmpty(film.getDescription()) && film.getDescription().length() > 200) {
+            log.info("Описание фильма превышает 200 символов.");
+        } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
+            log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
+            throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
+        } else if (film.getDuration() != null && film.getDuration() <= 0) {
+            log.info("Продолжительность фильма должна быть положительной");
+            throw new ValidationException("Продолжительность фильма должна быть положительной");
+        }
     }
 }
