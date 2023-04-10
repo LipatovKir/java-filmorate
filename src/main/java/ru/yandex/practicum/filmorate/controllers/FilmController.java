@@ -71,6 +71,7 @@ public class FilmController {
             throw new ValidationException("Нет названия фильма.");
         } else if (StringUtils.isNotEmpty(film.getDescription()) && film.getDescription().length() > 200) {
             log.info("Описание фильма превышает 200 символов.");
+            return true;
         } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
             log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
             throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
