@@ -38,7 +38,7 @@ public class FilmController {
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        if (validateFilm(film)) {
+        if (!validateFilm(film)) {
             if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
                 log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
                 throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
@@ -69,7 +69,7 @@ public class FilmController {
         if (StringUtils.isBlank(film.getName())) {
             log.info("Нет названия фильма.");
             throw new ValidationException("Нет названия фильма.");
-        } else if (StringUtils.isNotEmpty(film.getDescription()) & film.getDescription().length() > 200) {
+        } else if (StringUtils.isNotEmpty(film.getDescription()) && film.getDescription().length() > 200) {
             log.info("Описание фильма превышает 200 символов.");
         } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
             log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
@@ -80,3 +80,4 @@ public class FilmController {
         }
         return false;
     }
+}
