@@ -106,7 +106,7 @@ class UserControllerTest {
         assertThrows(
                 NullPointerException.class,
                 () -> {
-                    userController.updateUser(userController.users.get(3));
+                    userController.updateUser(userController.users.get(6));
                     throw new ValidationException("Такого пользователя нет в списке.  ");
                 }
         );
