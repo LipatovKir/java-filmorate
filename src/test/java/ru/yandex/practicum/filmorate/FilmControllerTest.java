@@ -20,7 +20,6 @@ class FilmControllerTest {
     @BeforeEach
     public void beforeEach() {
         filmController = new FilmController();
-        FilmController.setId(1);
         filmController.films.clear();
     }
 

@@ -27,10 +27,6 @@ public class FilmController {
         return id++;
     }
 
-    public static void setId(int id) {
-        FilmController.id = id;
-    }
-
     @GetMapping
     public Collection<Film> getAllFilms() {
         return films.values();
