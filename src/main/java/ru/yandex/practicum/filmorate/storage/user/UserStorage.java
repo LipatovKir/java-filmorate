@@ -10,7 +10,8 @@ public interface UserStorage {
     
     User putUser(User user);
     
-    User delUser(User user );
+    User delUser(User user);
     
     Map<Long, User> getAllUsers();
+    
 }
