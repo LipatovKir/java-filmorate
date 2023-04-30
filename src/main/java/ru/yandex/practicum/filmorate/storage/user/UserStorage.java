@@ -13,5 +13,4 @@ public interface UserStorage {
     User delUser(User user);
     
     Map<Long, User> getAllUsers();
-    
 }
