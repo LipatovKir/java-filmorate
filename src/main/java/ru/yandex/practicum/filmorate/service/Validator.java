@@ -34,7 +34,7 @@ public class Validator {
         return true;
     }
 
-    public static boolean validateReleaseDateFilm (Film film) {
+    public static boolean validateReleaseDateFilm(Film film) {
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
             log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
             throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
