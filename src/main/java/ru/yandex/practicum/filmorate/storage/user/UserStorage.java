@@ -7,7 +7,9 @@ import java.util.Map;
 public interface UserStorage {
 
     User addUser(User user);
+
     User putUser(User user);
-    User delUser(User user );
-    Map<Long, User> getAllUsers();
+
+    User delUser(User user);
+    Map <Long,User> getAllUsers();
 }

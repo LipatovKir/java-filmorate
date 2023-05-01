@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
@@ -12,12 +13,13 @@ import java.time.LocalDate;
 import java.time.Month;
 
 @Slf4j
+@UtilityClass
 public class Validator {
 
     private static final LocalDate startDate = LocalDate.of(1895, Month.DECEMBER, 28);
     private static final LocalDate currentTime = LocalDate.now();
 
-    public static boolean validateFilm(Film film) {
+    public static boolean validateFilm(Film film) throws ValidationException {
         if (StringUtils.isBlank(film.getName())) {
             log.info("Нет названия фильма.");
             throw new ValidationException("Нет названия фильма.");
@@ -34,7 +36,7 @@ public class Validator {
         return true;
     }
 
-    public static boolean validateReleaseDateFilm (Film film) {
+    public static boolean validateReleaseDateFilm(Film film) {
         if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
             log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
             throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
@@ -49,7 +51,7 @@ public class Validator {
         } else if (user.getLogin() == null || user.getEmail().isBlank() || user.getLogin().contains(" ")) {
             log.info("Логин некорректен. ");
             throw new ValidationException("Логин некорректен. ");
-        }  else if (user.getBirthday().isAfter(currentTime)) {
+        } else if (user.getBirthday().isAfter(currentTime)) {
             log.info("Дата рождения некорректна. ");
             throw new ValidationException("Дата рождения некорректна. ");
         }
@@ -84,5 +86,4 @@ public class Validator {
         }
         return count;
     }
-
 }
