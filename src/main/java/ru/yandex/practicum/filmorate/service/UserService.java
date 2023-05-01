@@ -24,11 +24,11 @@ public class UserService {
     private long getId() {
         return id++;
     }
-    
+
     public void setId(long id) {
         this.id = id;
     }
-    
+
     public List<User> findAllUsers() {
         return new ArrayList<>(userStorage.getAllUsers().values());
     }
