@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+
 import java.time.LocalDate;
 import java.time.Month;
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,16 +22,15 @@ class FilmControllerTest {
 
     @BeforeEach
     public void beforeEach() {
-        filmController = new FilmController();
-        filmController.films.clear();
+        final FilmService filmService = new FilmService(new InMemoryFilmStorage());
+        filmController = new FilmController(filmService);
     }
-
     @Test
     public void shouldCreateFilm() {
-        Film film = new Film(0, newFilmName, newFilmDescription, correctReleaseDate, 136);
-        filmController.createFilm(film);
-        assertFalse(filmController.films.isEmpty());
-        assertEquals(1, filmController.films.size());
+        Film film = new Film(1L, newFilmName, newFilmDescription, correctReleaseDate, 136);
+        filmController.create(film);
+        assertFalse(filmController.findAll().isEmpty());
+        assertEquals(1, filmController.findAll().size());
     }
 
     @Test
@@ -37,11 +39,11 @@ class FilmControllerTest {
         assertThrows(
                 ValidationException.class,
                 () -> {
-                    filmController.createFilm(film);
+                    filmController.create(film);
                     throw new ValidationException("Нет названия фильма.");
                 }
         );
-        assertTrue(filmController.films.isEmpty());
+        assertTrue(filmController.findAll().isEmpty());
     }
 
   @Test
@@ -52,11 +54,11 @@ class FilmControllerTest {
         assertThrows(
                 ValidationException.class,
                 () -> {
-                    filmController.createFilm(film);
+                    filmController.create(film);
                     throw new ValidationException("Описание фильма превышает 200 символов.");
                 }
         );
-        assertTrue(filmController.films.isEmpty());
+        assertTrue(filmController.findAll().isEmpty());
     }
 
     @Test
@@ -64,8 +66,8 @@ class FilmControllerTest {
         Film film = new Film(null, newFilmName, "Описание фильма очень длинное описание фильма очень длинное " +
                 "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
                 "Описание фильма очень длинное Описание фильма ", correctReleaseDate, 104);
-        filmController.createFilm(film);
-        assertEquals(1, filmController.films.size());
+        filmController.create(film);
+        assertEquals(1, filmController.findAll().size());
     }
 
     @Test
@@ -75,11 +77,11 @@ class FilmControllerTest {
         assertThrows(
                 ValidationException.class,
                 () -> {
-                    filmController.createFilm(film);
+                    filmController.create(film);
                     throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
                 }
         );
-        assertTrue(filmController.films.isEmpty());
+        assertTrue(filmController.findAll().isEmpty());
     }
 
     @Test
@@ -88,30 +90,19 @@ class FilmControllerTest {
         assertThrows(
                 ValidationException.class,
                 () -> {
-                    filmController.createFilm(film);
+                    filmController.create(film);
                     throw new ValidationException("Продолжительность фильма должна быть положительной");
                 }
         );
-        assertTrue(filmController.films.isEmpty());
-    }
-
-    @Test
-    public void shouldNotUpdateFilm() {
-        assertThrows(
-                NullPointerException.class,
-                () -> {
-                    filmController.updateFilm(filmController.films.get(5));
-                    throw new ValidationException("Такого фильма нет в списке. ");
-                }
-        );
+        assertTrue(filmController.findAll().isEmpty());
     }
 
     @Test
     public void shouldGetAllFilms()  {
-        Film film1 = new Film(1, newFilmName, newFilmDescription, correctReleaseDate, 1);
-        filmController.createFilm(film1);
-        Film film2 = new Film(2, newFilmName, newFilmDescription, correctReleaseDate, 3);
-        filmController.createFilm(film2);
-        assertEquals(2, filmController.getAllFilms().size());
+        Film film1 = new Film(1L, newFilmName, newFilmDescription, correctReleaseDate, 1);
+        filmController.create(film1);
+        Film film2 = new Film(2L, newFilmName, newFilmDescription, correctReleaseDate, 3);
+        filmController.create(film2);
+        assertEquals(2, filmController.findAll().size());
     }
 }
