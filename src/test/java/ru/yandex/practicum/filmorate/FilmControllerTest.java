@@ -25,6 +25,7 @@ class FilmControllerTest {
         final FilmService filmService = new FilmService(new InMemoryFilmStorage());
         filmController = new FilmController(filmService);
     }
+    
     @Test
     public void shouldCreateFilm() {
         Film film = new Film(1L, newFilmName, newFilmDescription, correctReleaseDate, 136);
@@ -46,7 +47,7 @@ class FilmControllerTest {
         assertTrue(filmController.findAll().isEmpty());
     }
 
-  @Test
+    @Test
     public void shouldNotCreateLongDescription() {
         Film film = new Film(null, newFilmName, "Описание фильма очень длинное описание фильма очень длинное " +
                 "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
