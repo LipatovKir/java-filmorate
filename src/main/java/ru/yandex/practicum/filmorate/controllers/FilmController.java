@@ -2,79 +2,67 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
-@Slf4j
+import java.util.*;
+
 @RestController
+@Slf4j
 @RequestMapping("/films")
 public class FilmController {
 
-    private static final LocalDate startDate = LocalDate.of(1895, Month.DECEMBER, 28);
-    public final Map<Integer, Film> films = new HashMap<>();
-    private static int id = 1;
+    private final FilmService filmService;
 
-    private static int getId() {
-        return id++;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
-        return films.values();
+    public Collection<Film> findAll() {
+        return filmService.findAllFilms();
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
-        if (!validateFilm(film)) {
-            if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-                log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-                throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-            }
-            film = new Film(getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
-            films.put(film.getId(), film);
-            log.info("Добавлен новый фильм: {}", film.getName());
-            return film;
-        } else {
-            log.error("Данные фильма внесены некорректно.");
-            throw new ValidationException("Некорректные данные фильма");
-        }
+    public Film create(@Valid @RequestBody Film film) {
+        return filmService.createFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-        } else {
-            throw new ValidationException("Такого фильма нет в списке. ");
-        }
-        log.info("Обновлено описание фильма: {}", film.getName());
-        films.put(film.getId(), film);
-        return film;
+    public Film put(@RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
-    private boolean validateFilm(Film film) {
-        if (StringUtils.isBlank(film.getName())) {
-            log.info("Нет названия фильма.");
-            throw new ValidationException("Нет названия фильма.");
-        } else if (StringUtils.isNotEmpty(film.getDescription()) && film.getDescription().length() > 200) {
-            log.info("Описание фильма превышает 200 символов.");
-            return true;
-        } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-            log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-            throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-        } else if (film.getDuration() != null && film.getDuration() <= 0) {
-            log.info("Продолжительность фильма должна быть положительной");
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
-        }
-        return false;
+    @DeleteMapping
+    public Film del(@RequestBody Film film) {
+        return filmService.deleteFilm(film);
+    }
+
+    @GetMapping("/{id}")
+    public Film findFilmById(@PathVariable("id") String id) {
+        return filmService.findFilmById(id);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") String id,
+                        @PathVariable("userId") String userId) {
+        return filmService.addLikeFilm(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film delLike(@PathVariable("id") String id,
+                        @PathVariable("userId") String userId) {
+        return filmService.removeLikeFilm(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> popularFilmList(@RequestParam(defaultValue = "10") String count) {
+        return filmService.sortFilmByLike(count);
     }
 }
