@@ -27,13 +27,13 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     final String selectFromFilms = "SELECT * FROM FILMS";
-    final String INSERT_INTO_FILMS = "INSERT INTO FIlMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, MPA_ID) VALUES (?, ?, ?, ?, ?)";
-    final String UPDATE_FILMS_SET_NAME = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASEDATE = ?, DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?";
-    final String DELETE_FROM_FILMS = "DELETE FROM FILMS WHERE FILM_ID = ?";
-    final String SELECT_FROM_FILMS_FILM_ID = "SELECT * FROM FILMS WHERE FILM_ID = ?";
-    final String INSERT_INTO_FILMS_GENRE = "INSERT INTO FILMS_GENRE(FILM_ID, GENRE_ID) VALUES (?, ?)";
-    final String DELETE_FROM_FILM_GENRE = "DELETE FROM FILMS_GENRE WHERE FILM_ID = ?";
-    final String SELECT_FROM_FILM_GENRE_JOIN_GENRE = "SELECT g.* FROM FILMS_GENRE AS fg " + "JOIN GENRE AS g ON fg.GENRE_ID = g.GENRE_ID " + "WHERE fg.FILM_ID =? " + "ORDER BY g.GENRE_ID";
+    final String insertIntoFilms = "INSERT INTO FIlMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, MPA_ID) VALUES (?, ?, ?, ?, ?)";
+    final String updateFilmsSetName = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASEDATE = ?, DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?";
+    final String deleteFromFilmsWhere = "DELETE FROM FILMS WHERE FILM_ID = ?";
+    final String selectFromFilmsFilmId = "SELECT * FROM FILMS WHERE FILM_ID = ?";
+    final String insertIntoFilmsGenre = "INSERT INTO FILMS_GENRE(FILM_ID, GENRE_ID) VALUES (?, ?)";
+    final String deleteFromFilmsGenre = "DELETE FROM FILMS_GENRE WHERE FILM_ID = ?";
+    final String selectFromFilmsGenre = "SELECT g.* FROM FILMS_GENRE AS fg " + "JOIN GENRE AS g ON fg.GENRE_ID = g.GENRE_ID " + "WHERE fg.FILM_ID =? " + "ORDER BY g.GENRE_ID";
 
     @Override
     public List<Film> getFilms() {
@@ -48,7 +48,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film addFilm(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(INSERT_INTO_FILMS, new String[]{"film_id"});
+            PreparedStatement stmt = connection.prepareStatement(insertIntoFilms, new String[]{"film_id"});
             stmt.setString(1, film.getName());
             stmt.setString(2, film.getDescription());
             stmt.setDate(3, Date.valueOf(film.getReleaseDate()));
@@ -66,18 +66,18 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void putFilm(Film film) {
-        this.jdbcTemplate.update(UPDATE_FILMS_SET_NAME, film.getName(), film.getDescription(), java.sql.Date.valueOf(film.getReleaseDate()), film.getDuration(), film.getMpa().getId(), film.getId());
+        this.jdbcTemplate.update(updateFilmsSetName, film.getName(), film.getDescription(), java.sql.Date.valueOf(film.getReleaseDate()), film.getDuration(), film.getMpa().getId(), film.getId());
     }
 
     @Override
     public void deleteFilm(Film film) {
-        this.jdbcTemplate.update(DELETE_FROM_FILMS, film.getId());
+        this.jdbcTemplate.update(deleteFromFilmsWhere, film.getId());
     }
 
     @Override
     public Optional<Film> findFilmById(Long filmById) {
         try {
-            Film film = jdbcTemplate.queryForObject(SELECT_FROM_FILMS_FILM_ID, FILM_MAPPER, filmById);
+            Film film = jdbcTemplate.queryForObject(selectFromFilmsFilmId, FILM_MAPPER, filmById);
             assert film != null;
             return Optional.of(film);
         } catch (EmptyResultDataAccessException exception) {
@@ -88,17 +88,17 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addGenreToFilm(long filmById, long genreById) {
-        jdbcTemplate.update(INSERT_INTO_FILMS_GENRE, filmById, genreById);
+        jdbcTemplate.update(insertIntoFilmsGenre, filmById, genreById);
     }
 
     @Override
     public List<Genre> getGenreFilmById(long id) {
-        return jdbcTemplate.query(SELECT_FROM_FILM_GENRE_JOIN_GENRE, GENRE_MAPPER, id);
+        return jdbcTemplate.query(selectFromFilmsGenre, GENRE_MAPPER, id);
     }
 
     @Override
     public void removeGenreFilm(long filmById) {
-        jdbcTemplate.update(DELETE_FROM_FILM_GENRE, filmById);
+        jdbcTemplate.update(deleteFromFilmsGenre, filmById);
     }
 
     @Override
