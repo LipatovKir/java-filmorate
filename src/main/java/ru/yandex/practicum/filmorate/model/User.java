@@ -1,10 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.*;
+
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class User {
@@ -20,5 +21,5 @@ public class User {
     private final String login;
     @PastOrPresent
     private final LocalDate birthday;
-    private Set<Long> friends = new HashSet<>();
+    private List<Long> friends = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -7,25 +8,21 @@ import ru.yandex.practicum.filmorate.model.Film;
 import javax.validation.Valid;
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.*;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
 
     private final FilmService filmService;
 
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<Film> findAllFilms() {
         return filmService.findAllFilms();
     }
 
@@ -40,25 +37,25 @@ public class FilmController {
     }
 
     @DeleteMapping
-    public Film del(@RequestBody Film film) {
+    public Film delete(@RequestBody Film film) {
         return filmService.deleteFilm(film);
     }
 
     @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable("id") String id) {
+    public Optional<Film> findFilmById(@PathVariable("id") String id) {
         return filmService.findFilmById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable("id") String id,
-                        @PathVariable("userId") String userId) {
-        return filmService.addLikeFilm(id, userId);
+                        @PathVariable("userId") String userById) {
+        return filmService.addLikeFilm(id, userById);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film delLike(@PathVariable("id") String id,
-                        @PathVariable("userId") String userId) {
-        return filmService.removeLikeFilm(id, userId);
+    public Film deleteLike(@PathVariable("id") String id,
+                           @PathVariable("userId") String userById) {
+        return filmService.removeLikeFilm(id, userById);
     }
 
     @GetMapping("/popular")
