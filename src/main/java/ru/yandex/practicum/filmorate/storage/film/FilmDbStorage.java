@@ -26,7 +26,7 @@ import static ru.yandex.practicum.filmorate.model.Mappers.GENRE_MAPPER;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String SELECT_FROM_FILMS = "SELECT * FROM FILMS";
+    final String selectFromFilms = "SELECT * FROM FILMS";
     final String INSERT_INTO_FILMS = "INSERT INTO FIlMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, MPA_ID) VALUES (?, ?, ?, ?, ?)";
     final String UPDATE_FILMS_SET_NAME = "UPDATE FILMS SET NAME = ?, DESCRIPTION = ?, RELEASEDATE = ?, DURATION = ?, MPA_ID = ? WHERE FILM_ID = ?";
     final String DELETE_FROM_FILMS = "DELETE FROM FILMS WHERE FILM_ID = ?";
@@ -38,7 +38,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilms() {
         try {
-            return jdbcTemplate.query(SELECT_FROM_FILMS, FILM_MAPPER);
+            return jdbcTemplate.query(selectFromFilms, FILM_MAPPER);
         } catch (RuntimeException e) {
             return Collections.emptyList();
         }
