@@ -19,32 +19,32 @@ import static ru.yandex.practicum.filmorate.model.Mappers.FRIENDSHIP_MAPPER;
 public class FriendshipDbStorage implements FriendshipStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String SELECT_SECOND_USER_ID = "SELECT SECOND_USER_ID FROM FRIENDSHIP WHERE FIRST_USER_ID = ? " + "UNION SELECT FIRST_USER_ID FROM FRIENDSHIP WHERE SECOND_USER_ID = ? AND STATUS = TRUE";
-    final String INSERT_INTO_FRIENDSHIP = "INSERT INTO FRIENDSHIP (FIRST_USER_ID,  SECOND_USER_ID) VALUES (?, ?)";
-    final String UPDATE_SET_STATUS = "UPDATE FRIENDSHIP SET STATUS = ? WHERE FIRST_USER_ID = ? " + "and SECOND_USER_ID = ? OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
-    final String SELECT_FROM_FRIENDSHIP = "SELECT * FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR SECOND_USER_ID = ? AND FIRST_USER_ID = ?";
-    final String DELETE_FROM_FRIENDSHIP = "DELETE FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
-    final String SELECT_STATUS_FRIENDSHIP = "SELECT STATUS FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    final String selectSecondUser = "SELECT SECOND_USER_ID FROM FRIENDSHIP WHERE FIRST_USER_ID = ? " + "UNION SELECT FIRST_USER_ID FROM FRIENDSHIP WHERE SECOND_USER_ID = ? AND STATUS = TRUE";
+    final String insertIntoFriendship = "INSERT INTO FRIENDSHIP (FIRST_USER_ID,  SECOND_USER_ID) VALUES (?, ?)";
+    final String updateSetStatus = "UPDATE FRIENDSHIP SET STATUS = ? WHERE FIRST_USER_ID = ? " + "and SECOND_USER_ID = ? OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    final String selectFromFriendship = "SELECT * FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR SECOND_USER_ID = ? AND FIRST_USER_ID = ?";
+    final String deleteFromFriendship = "DELETE FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    final String selectStatusFriendship = "SELECT STATUS FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
 
     @Override
     public List<Long> getAllById(long id) {
-        return jdbcTemplate.query(SELECT_SECOND_USER_ID, (rs, rowNum) -> rs.getLong("SECOND_USER_ID"), id, id);
+        return jdbcTemplate.query(selectSecondUser, (rs, rowNum) -> rs.getLong("SECOND_USER_ID"), id, id);
     }
 
     @Override
     public void add(Friendship friendship) {
-        jdbcTemplate.update(INSERT_INTO_FRIENDSHIP, friendship.getUser1ById(), friendship.getUser2ById());
+        jdbcTemplate.update(insertIntoFriendship, friendship.getUser1ById(), friendship.getUser2ById());
     }
 
     @Override
     public void put(Friendship friendship) {
-        jdbcTemplate.update(UPDATE_SET_STATUS, true, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        jdbcTemplate.update(updateSetStatus, true, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
     }
 
     @Override
     public Optional<Friendship> findFriendship(Friendship friendship) {
         try {
-            friendship = jdbcTemplate.queryForObject(SELECT_FROM_FRIENDSHIP, FRIENDSHIP_MAPPER, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+            friendship = jdbcTemplate.queryForObject(selectFromFriendship, FRIENDSHIP_MAPPER, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
             assert friendship != null;
             return Optional.of(friendship);
         } catch (EmptyResultDataAccessException exception) {
@@ -55,12 +55,12 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
     @Override
     public void delete(Friendship friendship) {
-        jdbcTemplate.update(DELETE_FROM_FRIENDSHIP, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        jdbcTemplate.update(deleteFromFriendship, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
     }
 
     @Override
     public boolean status(Friendship friendship) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(SELECT_STATUS_FRIENDSHIP, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(selectStatusFriendship, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
         if (userRows.next()) {
             return userRows.getBoolean("status");
         } else {

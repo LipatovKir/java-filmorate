@@ -17,12 +17,12 @@ import static ru.yandex.practicum.filmorate.model.Mappers.GENRE_MAPPER;
 public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String SELECT_FROM_GENRE = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+    final String selectFromGenre = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
 
     @Override
     public Optional<Genre> findGenreById(long id) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_FROM_GENRE, GENRE_MAPPER, id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(selectFromGenre, GENRE_MAPPER, id));
         } catch (EmptyResultDataAccessException exception) {
             throw new ObjectNotFoundException("Жанр с id " + id + " не найден");
         }
