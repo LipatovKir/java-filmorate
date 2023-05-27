@@ -114,11 +114,7 @@ public class FilmService {
         long size = Validator.convertToLongFilm(count);
         log.info("Список фильмов отсортирован по их популярности");
         return findAllFilms().stream().sorted((filmOne, filmTwo) ->
-                        filmTwo.getLikes().size() - filmOne.
-                                getLikes().
-                                size()).
-                limit(size).
-                collect(Collectors.toList());
+                filmTwo.getLikes().size() - filmOne.getLikes().size()).limit(size).collect(Collectors.toList());
     }
 
     public Film addLikeFilm(String film, String user) {
@@ -172,7 +168,3 @@ public class FilmService {
         return filmNew;
     }
 }
-
-
-
-
