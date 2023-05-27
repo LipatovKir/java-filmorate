@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class UserService {
     @Qualifier("UserDbStorage")
     private final UserStorage userStorage;
     private final FriendshipStorage friendsStorage;
+    private static final String USER_WITH_NUMBER = "Пользователь № ";
 
     public List<User> findAllUsers() {
         return new ArrayList<>(userStorage.getAllUsers());
@@ -31,11 +33,11 @@ public class UserService {
 
     public User createUser(User user) {
         Validator.validateUser(user);
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (StringUtils.isBlank(user.getName())) {
             log.debug("Имя не может быть пустым ли указано некорректно. Имя присвоено по умолчанию: {}", user.getLogin());
-            user = new User(null, user.getEmail(), user.getLogin(), user.getLogin(), user.getBirthday());
+            user = new User(user.getId(), user.getEmail(), user.getLogin(), user.getLogin(), user.getBirthday());
         } else {
-            user = new User(null, user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
+            user = new User(user.getId(), user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
         }
         log.info("Добавлен новый пользователь: {}", user.getLogin());
         return userStorage.addUser(user);
@@ -89,31 +91,31 @@ public class UserService {
         Friendship friendship = new Friendship(friendById, userById);
         if (friendsStorage.isExist(friendship)) {
             if (friendsStorage.status(friendship)) {
-                log.error("Пользователь № " + friendById + " Пользователь № " + userById + " уже друзья");
-                throw new WorkApplicationException("Пользователь № " + friendById + " Пользователь № " + userById + " уже друзья");
+                log.error(USER_WITH_NUMBER + friendById + USER_WITH_NUMBER + userById + " уже друзья");
+                throw new WorkApplicationException(USER_WITH_NUMBER + friendById + USER_WITH_NUMBER + userById + " уже друзья");
             } else {
                 friendsStorage.put(friendship);
-                log.info("Пользователь № " + userById + " добавил в друзья пользователя № " + friendById);
+                log.info(USER_WITH_NUMBER + userById + " добавил в друзья пользователя № " + friendById);
             }
         } else {
             friendsStorage.add(friendship);
-            log.info("Пользователь № " + friendById + " добавил в друзья пользователя № " + userById);
+            log.info(USER_WITH_NUMBER + friendById + " добавил в друзья пользователя № " + userById);
         }
         return findUserById(friend).get();
     }
 
-    public User delFriends(String user1, String user2) {
-        long friendById = Validator.convertToLongUser(user1);
-        long userById = Validator.convertToLongUser(user2);
+    public User delFriends(String userOne, String userTwo) {
+        long friendById = Validator.convertToLongUser(userOne);
+        long userById = Validator.convertToLongUser(userTwo);
         Friendship friendship = new Friendship(friendById, userById);
         if (friendsStorage.isExist(friendship)) {
-            log.error("Пользователь № " + friendById + " Пользователь № " + userById + " пока не друзья");
+            log.error(USER_WITH_NUMBER + friendById + USER_WITH_NUMBER + userById + " пока не друзья");
             friendsStorage.delete(friendship);
         } else {
-            log.error("Пользователь №" + userById + " и пользователь №" + friendById + " не друзья.");
-            throw new WorkApplicationException("Пользователь №" + userById + " и пользователь №" + friendById + " не друзья.");
+            log.error(USER_WITH_NUMBER + userById + " и " + USER_WITH_NUMBER + friendById + " не друзья.");
+            throw new WorkApplicationException(USER_WITH_NUMBER + userById + " и " + USER_WITH_NUMBER + friendById + " не друзья.");
         }
-        return findUserById(user1).get();
+        return findUserById(userOne).get();
     }
 
     public List<User> friendsList(String user) {
@@ -126,128 +128,16 @@ public class UserService {
         return friendsList;
     }
 
-    public List<User> mutualFriends(String user1, String user2) {
-        long user1Id = Validator.convertToLongUser(user1);
-        long user2Id = Validator.convertToLongUser(user2);
-        Set<Long> friends = new HashSet<>(friendsStorage.getAllById(user1Id));
-        friends.retainAll(friendsStorage.getAllById(user2Id));
+    public List<User> mutualFriends(String userOne, String userTwo) {
+        long userOneId = Validator.convertToLongUser(userOne);
+        long userTwoId = Validator.convertToLongUser(userTwo);
+        Set<Long> friends = new HashSet<>(friendsStorage.getAllById(userOneId));
+        friends.retainAll(friendsStorage.getAllById(userTwoId));
         List<User> mutualFriends = new ArrayList<>();
         for (Long user : friends) {
             mutualFriends.add(userStorage.findUserById(user).get());
         }
-        log.info("Список общих друзей пользователя № " + user1Id + " и пользователя № " + user2Id);
+        log.info("Список общих друзей пользователя № " + userOneId + " и пользователя № " + userTwoId);
         return mutualFriends;
     }
 }
-/*
-
-
-
-
-    @Override
-
-
-    @Override
-    public User addFriends(String user1, String user2) {
-
-        long user1Id = parseStringInLong(user1);
-        long user2Id = parseStringInLong(user2);
-
-        Friendship friendship = new Friendship(user1Id, user2Id);
-
-        if (friendshipStorage.isExist(friendship)) {
-
-            if (friendshipStorage.status(friendship)) {
-                throw new BusinessLogicException("User №" + user2Id + " and User №" + user1Id + " already friends");
-
-            } else {
-                friendshipStorage.put(friendship);
-                log.info("User №" + user1Id + "and User №" + user2Id + "now friends");
-            }
-
-        } else {
-
-            friendshipStorage.add(friendship);
-            log.info("User №" + user2Id + "added to friends lists User №" + user1Id);
-        }
-
-        return findUserById(user1).get();
-    }
-
-    @Override
-    public User delFriends(String user1, String user2) {
-
-        long user1Id = parseStringInLong(user1);
-        long user2Id = parseStringInLong(user2);
-
-        Friendship friendship = new Friendship(user1Id, user2Id);
-
-        if (friendshipStorage.isExist(friendship)) {
-            log.info("User №" + user1Id + "and User №" + user2Id + " not friends anymore");
-            friendshipStorage.del(friendship);
-
-        } else {
-            log.error("User №" + user2Id + " and User №" + user1Id + " not friends");
-            throw new BusinessLogicException("User №" + user2Id + " and User №" + user1Id + " not friends");
-        }
-
-        return findUserById(user1).get();
-    }
-
-    @Override
-    public List<User> friendsList(String user) {
-
-        long userId = parseStringInLong(user);
-
-        List<User> friendsList = new ArrayList<>();
-
-        for (Long friend : friendshipStorage.findAllById(userId)) {
-            friendsList.add(userStorage.findUserById(friend).get());
-        }
-
-        log.info("List friends User №" + userId);
-        return friendsList;
-
-    }
-
-    @Override
-    public List<User> commonFriends(String user1, String user2) {
-
-        long user1Id = parseStringInLong(user1);
-        long user2Id = parseStringInLong(user2);
-
-        Set<Long> common = new HashSet<>(friendshipStorage.findAllById(user1Id));
-        common.retainAll(friendshipStorage.findAllById(user2Id));
-
-        List<User> commonFriends = new ArrayList<>();
-
-        for (Long aLong : common) {
-            commonFriends.add(userStorage.findUserById(aLong).get());
-        }
-
-        log.info("List of mutual friends User №" + user1Id + " and User №" + user2Id + "ready");
-        return commonFriends;
-
-    }
-
-    public Long parseStringInLong(String str) {
-
-        long a = 0;
-
-        try {
-            a = Long.parseLong(str);
-        } catch (NumberFormatException e) {
-            log.error("\"" + str + "\" must be a number");
-            throw new ValidationException("\"" + str + "\" must be a number");
-        }
-
-        if (a <= 0) {
-            log.error("\"" + str + "\" must be positive");
-            throw new UserNotFoundException("\"" + str + "\" must be positive");
-        }
-
-        return a;
-    }
-
-}
- */

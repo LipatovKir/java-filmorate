@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class Friendship {
 
-    private long user1ById;
-    private long user2ById;
+    private long userOneById;
+    private long userTwoById;
 }

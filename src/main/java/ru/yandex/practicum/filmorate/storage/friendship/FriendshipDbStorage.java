@@ -6,6 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 
 import java.util.List;
@@ -19,52 +20,89 @@ import static ru.yandex.practicum.filmorate.model.Mappers.FRIENDSHIP_MAPPER;
 public class FriendshipDbStorage implements FriendshipStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String selectSecondUser = "SELECT SECOND_USER_ID FROM FRIENDSHIP WHERE FIRST_USER_ID = ? " + "UNION SELECT FIRST_USER_ID FROM FRIENDSHIP WHERE SECOND_USER_ID = ? AND STATUS = TRUE";
-    final String insertIntoFriendship = "INSERT INTO FRIENDSHIP (FIRST_USER_ID,  SECOND_USER_ID) VALUES (?, ?)";
-    final String updateSetStatus = "UPDATE FRIENDSHIP SET STATUS = ? WHERE FIRST_USER_ID = ? " + "and SECOND_USER_ID = ? OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
-    final String selectFromFriendship = "SELECT * FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR SECOND_USER_ID = ? AND FIRST_USER_ID = ?";
-    final String deleteFromFriendship = "DELETE FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
-    final String selectStatusFriendship = "SELECT STATUS FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " + "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    private static final String SELECT_SECOND_USER =
+            "SELECT SECOND_USER_ID FROM FRIENDSHIP WHERE FIRST_USER_ID = ? " +
+                    "UNION SELECT FIRST_USER_ID FROM FRIENDSHIP WHERE SECOND_USER_ID = ? AND STATUS = TRUE";
+    private static final String INSERT_INTO_FRIENDSHIP_FIRST_USER_ID_SECOND_USER_ID_VALUES =
+            "INSERT INTO FRIENDSHIP (FIRST_USER_ID,  SECOND_USER_ID) VALUES (?, ?)";
+    private static final String UPDATE_SET_STATUS =
+            "UPDATE FRIENDSHIP SET STATUS = ? WHERE FIRST_USER_ID = ? " +
+                    "and SECOND_USER_ID = ? OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    private static final String SELECT_FROM_FRIENDSHIP =
+            "SELECT * FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " +
+                    "OR SECOND_USER_ID = ? AND FIRST_USER_ID = ?";
+    private static final String DELETE_FROM_FRIENDSHIP =
+            "DELETE FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " +
+                    "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
+    private static final String SELECT_STATUS_FRIENDSHIP =
+            "SELECT STATUS FROM FRIENDSHIP WHERE FIRST_USER_ID = ? AND SECOND_USER_ID = ? " +
+                    "OR FIRST_USER_ID = ? AND SECOND_USER_ID = ?";
 
     @Override
     public List<Long> getAllById(long id) {
-        return jdbcTemplate.query(selectSecondUser, (rs, rowNum) -> rs.getLong("SECOND_USER_ID"), id, id);
+        return jdbcTemplate.query(SELECT_SECOND_USER, (rs, rowNum) -> rs.getLong("SECOND_USER_ID"), id, id);
     }
 
     @Override
     public void add(Friendship friendship) {
-        jdbcTemplate.update(insertIntoFriendship, friendship.getUser1ById(), friendship.getUser2ById());
+        jdbcTemplate.update(INSERT_INTO_FRIENDSHIP_FIRST_USER_ID_SECOND_USER_ID_VALUES,
+                friendship.getUserOneById(),
+                friendship.getUserTwoById());
     }
 
     @Override
     public void put(Friendship friendship) {
-        jdbcTemplate.update(updateSetStatus, true, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        jdbcTemplate.update(UPDATE_SET_STATUS, true,
+                friendship.getUserOneById(),
+                friendship.getUserTwoById(),
+                friendship.getUserTwoById(),
+                friendship.getUserOneById());
     }
 
     @Override
     public Optional<Friendship> findFriendship(Friendship friendship) {
         try {
-            friendship = jdbcTemplate.queryForObject(selectFromFriendship, FRIENDSHIP_MAPPER, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
-            assert friendship != null;
-            return Optional.of(friendship);
+            friendship = jdbcTemplate.queryForObject(SELECT_FROM_FRIENDSHIP, FRIENDSHIP_MAPPER,
+                    friendship.getUserOneById(),
+                    friendship.getUserTwoById(),
+                    friendship.getUserTwoById(),
+                    friendship.getUserOneById());
+            checkFriendship(friendship);
+            return Optional.ofNullable(friendship);
         } catch (EmptyResultDataAccessException exception) {
-            log.info("Пользователь id{} и пользователь id {} пока не друзья ", friendship.getUser1ById(), friendship.getUser2ById());
+            log.info("Пользователь id{} и пользователь id {} пока не друзья ",
+                    friendship.getUserOneById(),
+                    friendship.getUserTwoById());
             return Optional.empty();
         }
     }
 
     @Override
     public void delete(Friendship friendship) {
-        jdbcTemplate.update(deleteFromFriendship, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        jdbcTemplate.update(DELETE_FROM_FRIENDSHIP,
+                friendship.getUserOneById(),
+                friendship.getUserTwoById(),
+                friendship.getUserTwoById(),
+                friendship.getUserOneById());
     }
 
     @Override
     public boolean status(Friendship friendship) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(selectStatusFriendship, friendship.getUser1ById(), friendship.getUser2ById(), friendship.getUser2ById(), friendship.getUser1ById());
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(SELECT_STATUS_FRIENDSHIP,
+                friendship.getUserOneById(),
+                friendship.getUserTwoById(),
+                friendship.getUserTwoById(),
+                friendship.getUserOneById());
         if (userRows.next()) {
             return userRows.getBoolean("status");
         } else {
             return false;
+        }
+    }
+
+    public void checkFriendship(Friendship friendship) {
+        if (friendship == null) {
+            throw new ObjectNotFoundException("Друзья не найдены.");
         }
     }
 

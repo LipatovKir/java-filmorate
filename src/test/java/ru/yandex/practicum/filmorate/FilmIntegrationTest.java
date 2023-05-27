@@ -31,17 +31,23 @@ class FilmIntegrationTest {
     final GenreStorage genreStorage;
     final LocalDate correctReleaseDate = LocalDate.of(1895, Month.DECEMBER, 29);
     final LocalDate notCorrectReleaseDate = LocalDate.of(1895, Month.DECEMBER, 27);
-    final String newFilm1Name = "Новое кино1";
-    final String newFilm1Description = "Описание нового фильма1";
-    final String newFilm2Name = "Новое кино2";
-    final String newFilm2Description = "Описание нового фильма2";
-    static Film film1;
-    static Film film2;
+    final String newFilmOneName = "Новое кино1";
+    final String newFilmOneDescription = "Описание нового фильма1";
+    final String newFilmTwoName = "Новое кино2";
+    final String newFilmTwoDescription = "Описание нового фильма2";
+    static Film filmOne;
+    static Film filmTwo;
 
     @BeforeEach
     void beforeEach() {
-        film1 = new Film(null, newFilm1Name, newFilm1Description, (LocalDate.of(2002, 5, 5)), 100, new Mpa(2L));
-        film2 = new Film(null, newFilm2Name, newFilm2Description, (LocalDate.of(2002, 3, 2)), 90, new Mpa(5L));
+        filmOne = new Film(null, newFilmOneName, newFilmOneDescription,
+                (LocalDate.of(2002, 5, 5)),
+                100,
+                new Mpa(2L));
+        filmTwo = new Film(null, newFilmTwoName, newFilmTwoDescription,
+                (LocalDate.of(2002, 3, 2)),
+                90,
+                new Mpa(5L));
     }
 
     @AfterEach
@@ -52,93 +58,136 @@ class FilmIntegrationTest {
     }
 
     @Test
-    public void shouldCreateFilm() {
-        final Film film = filmStorage.addFilm(film1);
+    void shouldCreateFilm() {
+        final Film film = filmStorage.addFilm(filmOne);
         assertThat(film.getId()).isNotNull();
-        assertThat(film.getName()).isEqualTo(film1.getName());
-        assertThat(film.getDescription()).isEqualTo(film1.getDescription());
-        assertThat(film.getReleaseDate()).isEqualTo(film1.getReleaseDate());
-        assertThat(film.getDuration()).isEqualTo(film1.getDuration());
-        assertThat(film.getMpa()).isEqualTo(film1.getMpa());
+        assertThat(film.getName()).isEqualTo(filmOne.getName());
+        assertThat(film.getDescription()).isEqualTo(filmOne.getDescription());
+        assertThat(film.getReleaseDate()).isEqualTo(filmOne.getReleaseDate());
+        assertThat(film.getDuration()).isEqualTo(filmOne.getDuration());
+        assertThat(film.getMpa()).isEqualTo(filmOne.getMpa());
     }
 
     @Test
-    public void shouldNotCreateFilmWithEmptyName() {
-        Film film = new Film(null,null, newFilm1Description, correctReleaseDate, 104, new Mpa(2L));
-        assertThrows(DataIntegrityViolationException.class, () -> {
+    void shouldNotCreateFilmWithEmptyName() {
+        Film film = new Film(null, null, newFilmOneDescription, correctReleaseDate, 104, new Mpa(2L));
+        try {
             filmStorage.addFilm(film);
-            throw new DataIntegrityViolationException("Нет названия фильма.");
-        });
+            assertThrows(DataIntegrityViolationException.class, () -> {
+            });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Нет названия фильма.");
+            assertTrue(filmStorage.getFilms().isEmpty());
+        }
+    }
+
+    @Test
+    void shouldNotCreateLongDescription() {
+        Film film = new Film(null,
+                newFilmOneName,
+                "Описание фильма очень длинное описание фильма очень длинное " +
+                        "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
+                        "Описание фильма очень длинное Описание фильма очен ",
+                correctReleaseDate,
+                104,
+                new Mpa(2L));
+        try {
+            filmStorage.addFilm(film);
+            assertThrows(DataIntegrityViolationException.class, () -> {
+            });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Описание фильма превышает 200 символов.");
+        }
         assertTrue(filmStorage.getFilms().isEmpty());
     }
 
     @Test
-    public void shouldNotCreateLongDescription() {
-        Film film = new Film(null, newFilm1Name, "Описание фильма очень длинное описание фильма очень длинное " + "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " + "Описание фильма очень длинное Описание фильма очен ", correctReleaseDate, 104, new Mpa(2L));
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            filmStorage.addFilm(film);
-            throw new DataIntegrityViolationException("Описание фильма превышает 200 символов.");
-        });
-        assertTrue(filmStorage.getFilms().isEmpty());
-    }
-
-    @Test
-    public void shouldCreateLong199Description() {
-        Film film = new Film(null, newFilm1Name, "Описание фильма очень длинное описание фильма очень длинное " + "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " + "Описание фильма очень длинное Описание фильма ", correctReleaseDate, 104, new Mpa(2L));
+    void shouldCreateLong199Description() {
+        Film film = new Film(null,
+                newFilmOneName,
+                "Описание фильма очень длинное описание фильма очень длинное " +
+                        "Описание фильма очень длинное Описание фильма очень длинное Описание фильма очень длинное " +
+                        "Описание фильма очень длинное Описание фильма ",
+                correctReleaseDate,
+                104,
+                new Mpa(2L));
         filmStorage.addFilm(film);
         assertEquals(1, filmStorage.getFilms().size());
     }
 
     @Test
-    public void shouldNotCreateNotCorrectReleaseDate() {
-        Film film = new Film(null, newFilm2Name, newFilm2Description, notCorrectReleaseDate, 113, new Mpa(10L));
-        assertThrows(DataIntegrityViolationException.class, () -> {
+    void shouldNotCreateNotCorrectReleaseDate() {
+        Film film = new Film(null, newFilmTwoName, newFilmTwoDescription, notCorrectReleaseDate, 113, new Mpa(10L));
+        try {
             filmStorage.addFilm(film);
-            throw new DataIntegrityViolationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-        });
+            assertThrows(DataIntegrityViolationException.class, () -> {
+            });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Дата выпуска фильма не может быть раньше " +
+                    "первого в истории человечества кинопоказа в Париже.");
+        }
         assertTrue(filmStorage.getFilms().isEmpty());
     }
 
     @Test
-    public void shouldNotCreateNegativeDuration() {
-        Film film = new Film(null, newFilm2Name, newFilm1Description, correctReleaseDate, -1, new Mpa(4L));
-        assertThrows(DataIntegrityViolationException.class, () -> {
+    void shouldNotCreateNegativeDuration() {
+        Film film = new Film(null, newFilmTwoName, newFilmOneDescription, correctReleaseDate, -1, new Mpa(4L));
+        try {
             filmStorage.addFilm(film);
-            throw new DataIntegrityViolationException("Продолжительность фильма должна быть положительной");
-        });
-        assertTrue(filmStorage.getFilms().isEmpty());
+            assertThrows(DataIntegrityViolationException.class, () -> {
+            });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Продолжительность фильма должна быть положительной");
+            assertTrue(filmStorage.getFilms().isEmpty());
+        }
     }
 
     @Test
     void testPutFilm() {
-        final Film film11 = filmStorage.addFilm(film1);
-        final long id = film11.getId();
-        Film film3 = new Film(id, film2.getName(), film2.getDescription(), film2.getReleaseDate(), film2.getDuration(), film2.getMpa());
-        filmStorage.putFilm(film3);
+        final Film filmNew = filmStorage.addFilm(filmOne);
+        final long id = filmNew.getId();
+        Film filmThree = new Film(id,
+                filmTwo.getName(),
+                filmTwo.getDescription(),
+                filmTwo.getReleaseDate(),
+                filmTwo.getDuration(),
+                filmTwo.getMpa());
+        filmStorage.putFilm(filmThree);
         final Optional<Film> filmOptional = filmStorage.findFilmById(id);
-        assertThat(filmOptional).isPresent().hasValueSatisfying(film -> assertThat(film).hasFieldOrPropertyWithValue("id", id).hasFieldOrPropertyWithValue("name", film2.getName()).hasFieldOrPropertyWithValue("description", film2.getDescription()).hasFieldOrPropertyWithValue("releaseDate", film2.getReleaseDate()).hasFieldOrPropertyWithValue("duration", film2.getDuration()).hasFieldOrPropertyWithValue("mpa", film2.getMpa()));
+        assertThat(filmOptional).isPresent().hasValueSatisfying(film ->
+                assertThat(film).hasFieldOrPropertyWithValue("id", id)
+                        .hasFieldOrPropertyWithValue("name", filmTwo.getName())
+                        .hasFieldOrPropertyWithValue("description", filmTwo.getDescription())
+                        .hasFieldOrPropertyWithValue("releaseDate", filmTwo.getReleaseDate())
+                        .hasFieldOrPropertyWithValue("duration", filmTwo.getDuration())
+                        .hasFieldOrPropertyWithValue("mpa", filmTwo.getMpa()));
     }
 
     @Test
     void shouldFindFilmById() {
-        final long id = filmStorage.addFilm(film1).getId();
+        final long id = filmStorage.addFilm(filmOne).getId();
         final Optional<Film> filmOptional = filmStorage.findFilmById(id);
-        assertThat(filmOptional).isPresent().hasValueSatisfying(film -> assertThat(film).hasFieldOrPropertyWithValue("id", id).hasFieldOrPropertyWithValue("name", film1.getName()).hasFieldOrPropertyWithValue("description", film1.getDescription()).hasFieldOrPropertyWithValue("releaseDate", film1.getReleaseDate()).hasFieldOrPropertyWithValue("duration", film1.getDuration()).hasFieldOrPropertyWithValue("mpa", film1.getMpa()));
+        assertThat(filmOptional).isPresent().hasValueSatisfying(film -> assertThat(film)
+                .hasFieldOrPropertyWithValue("id", id)
+                .hasFieldOrPropertyWithValue("name", filmOne.getName())
+                .hasFieldOrPropertyWithValue("description", filmOne.getDescription())
+                .hasFieldOrPropertyWithValue("releaseDate", filmOne.getReleaseDate())
+                .hasFieldOrPropertyWithValue("duration", filmOne.getDuration())
+                .hasFieldOrPropertyWithValue("mpa", filmOne.getMpa()));
     }
 
     @Test
-    public void shouldGetAllFilms() {
-        filmStorage.addFilm(film1);
-        filmStorage.addFilm(film2);
+    void shouldGetAllFilms() {
+        filmStorage.addFilm(filmOne);
+        filmStorage.addFilm(filmTwo);
         assertEquals(2, filmStorage.getFilms().size());
         final List<Film> allFilms = filmStorage.getFilms();
-        assertThat(allFilms.size()).isEqualTo(2);
-        assertThat(allFilms).isNotNull();
+        assertThat(allFilms).hasSize(2).isNotNull();
     }
 
     @Test
     void shouldDeleteFilm() {
-        final Film film = filmStorage.addFilm(film1);
+        final Film film = filmStorage.addFilm(filmOne);
         final long id = film.getId();
         filmStorage.deleteFilm(film);
         final Optional<Film> filmOptional = filmStorage.findFilmById(id);
@@ -147,15 +196,15 @@ class FilmIntegrationTest {
 
     @Test
     void testGenreFilm() {
-        final Film filmTest = filmStorage.addFilm(film1);
-        final Genre genre1 = genreStorage.findGenreById(1L).get();
-        final Genre genre2 = genreStorage.findGenreById(1L).get();
-        filmStorage.addGenreToFilm(filmTest.getId(), genre1.getId());
-        filmStorage.addGenreToFilm(filmTest.getId(), genre2.getId());
+        final Film filmTest = filmStorage.addFilm(filmOne);
+        final Genre genreOne = genreStorage.findGenreById(1L).get();
+        final Genre genreTwo = genreStorage.findGenreById(1L).get();
+        filmStorage.addGenreToFilm(filmTest.getId(), genreOne.getId());
+        filmStorage.addGenreToFilm(filmTest.getId(), genreTwo.getId());
         List<Genre> genreList = filmStorage.getGenreFilmById(filmTest.getId());
-        assertThat(genreList.size()).isEqualTo(2);
-        assertThat(genreList.get(0)).isEqualTo(genre1);
-        assertThat(genreList.get(1)).isEqualTo(genre2);
+        assertThat(genreList).hasSize(2);
+        assertThat(genreList.get(0)).isEqualTo(genreOne);
+        assertThat(genreList.get(1)).isEqualTo(genreTwo);
         filmStorage.removeGenreFilm(filmTest.getId());
         genreList = filmStorage.getGenreFilmById(filmTest.getId());
         assertTrue(genreList.isEmpty());

@@ -23,8 +23,8 @@ public class GenreService {
     }
 
     public Genre findGenreById(long id) {
-        if (genreStorage.findGenreById(id).isPresent()) {
-            Genre genre = genreStorage.findGenreById(id).get();
+        Genre genre = genreStorage.findGenreById(id).get();
+        if (genre != null ) {
             log.info("Жанр найден = {} ", genre.getId(), genre.getName());
             return genre;
         } else {

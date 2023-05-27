@@ -19,13 +19,13 @@ import static ru.yandex.practicum.filmorate.model.Mappers.MPA_MAPPER;
 public class MpaDbStorage implements MpaStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String selectFromMpa = "SELECT * FROM MPA WHERE MPA_ID = ?";
-    final String selectFromMpaOrder = "SELECT * FROM MPA ORDER BY MPA_ID";
+    private static final String SELECT_FROM_MPA_WHERE_MPA_ID = "SELECT * FROM MPA WHERE MPA_ID = ?";
+    private static final String SELECT_FROM_MPA_ORDER_BY_MPA_ID = "SELECT * FROM MPA ORDER BY MPA_ID";
 
     @Override
     public Optional<Mpa> findMpaById(long id) {
         try {
-            Mpa mpa = jdbcTemplate.queryForObject(selectFromMpa, MPA_MAPPER, id);
+            Mpa mpa = jdbcTemplate.queryForObject(SELECT_FROM_MPA_WHERE_MPA_ID, MPA_MAPPER, id);
             assert mpa != null;
             log.info("Рейтинг-MРА id {} название {}", mpa.getId(), mpa.getName());
             return Optional.of(mpa);
@@ -37,6 +37,6 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public List<Mpa> findAllMpa() {
-        return jdbcTemplate.query(selectFromMpaOrder, MPA_MAPPER);
+        return jdbcTemplate.query(SELECT_FROM_MPA_ORDER_BY_MPA_ID, MPA_MAPPER);
     }
 }

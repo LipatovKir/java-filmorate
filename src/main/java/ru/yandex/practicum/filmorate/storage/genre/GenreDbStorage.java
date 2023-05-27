@@ -17,12 +17,13 @@ import static ru.yandex.practicum.filmorate.model.Mappers.GENRE_MAPPER;
 public class GenreDbStorage implements GenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String selectFromGenre = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+    private static final String SELECT_FROM_GENRE_WHERE_GENRE_ID = "SELECT * FROM GENRE WHERE GENRE_ID = ?";
+    private static final String SELECT_FROM_GENRE_ORDER = "SELECT * FROM GENRE ORDER BY GENRE_ID";
 
     @Override
     public Optional<Genre> findGenreById(long id) {
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(selectFromGenre, GENRE_MAPPER, id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_FROM_GENRE_WHERE_GENRE_ID, GENRE_MAPPER, id));
         } catch (EmptyResultDataAccessException exception) {
             throw new ObjectNotFoundException("Жанр с id " + id + " не найден");
         }
@@ -30,7 +31,6 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> findAllGenres() {
-        String sql = "SELECT * FROM GENRE ORDER BY GENRE_ID";
-        return jdbcTemplate.query(sql, GENRE_MAPPER);
+        return jdbcTemplate.query(SELECT_FROM_GENRE_ORDER, GENRE_MAPPER);
     }
 }

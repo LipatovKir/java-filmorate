@@ -22,11 +22,16 @@ import static ru.yandex.practicum.filmorate.model.Mappers.USER_MAPPER;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private static final String setUsersSetEmailNameLogin = "UPDATE USERS SET EMAIL = ?, NAME = ?, LOGIN = ?, BIRTHDAY = ? WHERE USER_ID = ?";
-    private static final String deleteFromUsersWhereUserId = "DELETE FROM USERS  WHERE USER_ID = ?";
-    private static final String selectFromUsersWhereUser = "SELECT * FROM USERS WHERE USER_ID = ?";
-    private static final String selectIntoUsers = "SELECT * FROM USERS";
-    private static final String insertIntoUsers = "INSERT INTO USERS (email, name, login, birthday) VALUES (?, ?, ?, ?)";
+    private static final String UPDATE_USERS_SET_EMAIL_NAME_LOGIN_BIRTHDAY_WHERE_USER_ID =
+            "UPDATE USERS SET EMAIL = ?, NAME = ?, LOGIN = ?, BIRTHDAY = ? WHERE USER_ID = ?";
+    private static final String DELETE_FROM_USERS_WHERE_USER_ID =
+            "DELETE FROM USERS  WHERE USER_ID = ?";
+    private static final String SELECT_FROM_USERS_WHERE_USER_ID =
+            "SELECT * FROM USERS WHERE USER_ID = ?";
+    private static final String SELECT_FROM_USERS =
+            "SELECT * FROM USERS";
+    private static final String INSERT_INTO_USERS_EMAIL_NAME_LOGIN_BIRTHDAY_VALUES =
+            "INSERT INTO USERS (email, name, login, birthday) VALUES (?, ?, ?, ?)";
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -36,25 +41,35 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(insertIntoUsers, new String[]{"user_id"});
+            PreparedStatement stmt = connection.prepareStatement(INSERT_INTO_USERS_EMAIL_NAME_LOGIN_BIRTHDAY_VALUES,
+                    new String[]{"user_id"});
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getName());
             stmt.setString(3, user.getLogin());
             stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, keyHolder);
-        return new User(Objects.requireNonNull(keyHolder.getKey()).longValue(), user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
+        return new User(Objects.requireNonNull(keyHolder.getKey()).longValue(),
+                user.getEmail(),
+                user.getName(),
+                user.getLogin(),
+                user.getBirthday());
     }
 
     @Override
     public void putUser(User user) {
-        jdbcTemplate.update(setUsersSetEmailNameLogin, user.getEmail(), user.getName(), user.getLogin(), java.sql.Date.valueOf(user.getBirthday()), user.getId());
+        jdbcTemplate.update(UPDATE_USERS_SET_EMAIL_NAME_LOGIN_BIRTHDAY_WHERE_USER_ID,
+                user.getEmail(),
+                user.getName(),
+                user.getLogin(),
+                java.sql.Date.valueOf(user.getBirthday()),
+                user.getId());
     }
 
     @Override
     public Optional<User> findUserById(Long id) {
         try {
-            User user = jdbcTemplate.queryForObject(selectFromUsersWhereUser, USER_MAPPER, id);
+            User user = jdbcTemplate.queryForObject(SELECT_FROM_USERS_WHERE_USER_ID, USER_MAPPER, id);
             assert user != null;
             return Optional.of(user);
         } catch (EmptyResultDataAccessException exception) {
@@ -70,13 +85,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteUser(User user) {
-        jdbcTemplate.update(deleteFromUsersWhereUserId, user.getId());
+        jdbcTemplate.update(DELETE_FROM_USERS_WHERE_USER_ID, user.getId());
     }
 
     @Override
     public List<User> getAllUsers() {
         try {
-            return jdbcTemplate.query(selectIntoUsers, USER_MAPPER);
+            return jdbcTemplate.query(SELECT_FROM_USERS, USER_MAPPER);
         } catch (RuntimeException e) {
             return Collections.emptyList();
         }

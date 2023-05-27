@@ -17,5 +17,5 @@ public interface UserStorage {
 
     void deleteUser(User user);
 
-   List<User> getAllUsers();
+    List<User> getAllUsers();
 }

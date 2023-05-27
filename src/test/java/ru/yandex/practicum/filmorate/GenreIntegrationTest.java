@@ -12,10 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
-public class GenreIntegrationTest {
+class GenreIntegrationTest {
 
     final GenreStorage genreStorage;
 
@@ -34,7 +35,7 @@ public class GenreIntegrationTest {
     @Test
     void shouldFindAllGenres() {
         final List<Genre> genreList = genreStorage.findAllGenres();
-        assertThat(genreList.size()).isEqualTo(6);
+        assertThat(genreList).hasSize(6);
         Genre genreId1 = genreStorage.findGenreById(1L).get();
         Genre genreId2 = genreStorage.findGenreById(2L).get();
         Genre genreId3 = genreStorage.findGenreById(3L).get();

@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -23,8 +24,9 @@ public class MpaService {
     }
 
     public Mpa findMpaById(long id) {
-        if (mpaStorage.findMpaById(id).isPresent()) {
-            Mpa mpa = mpaStorage.findMpaById(id).get();
+        Optional<Mpa> optMpa = mpaStorage.findMpaById(id);
+        if (optMpa.isPresent()) {
+            Mpa mpa = optMpa.get();
             log.info("Рейтинг-MРА id {}, название {}", mpa.getId(), mpa.getName());
             return mpa;
         } else {

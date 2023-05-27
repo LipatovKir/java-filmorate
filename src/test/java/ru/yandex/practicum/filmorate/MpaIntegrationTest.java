@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
-public class MpaIntegrationTest {
+class MpaIntegrationTest {
 
     final MpaStorage mpaStorage;
 
@@ -28,24 +28,25 @@ public class MpaIntegrationTest {
         assertThat(mpaOptional)
                 .isPresent()
                 .hasValueSatisfying(mpa ->
-                        assertThat(mpa).hasFieldOrPropertyWithValue("id", id)
+                        assertThat(mpa)
+                                .hasFieldOrPropertyWithValue("id", id)
                                 .hasFieldOrPropertyWithValue("name", "PG-13"));
     }
 
     @Test
     void shouldFindAllMpa() {
         final List<Mpa> mpaList = mpaStorage.findAllMpa();
-        assertThat(mpaList.size()).isEqualTo(5);
-        Mpa mpaId1 = mpaStorage.findMpaById(1L).get();
-        Mpa mpaId2 = mpaStorage.findMpaById(2L).get();
-        Mpa mpaId3 = mpaStorage.findMpaById(3L).get();
-        Mpa mpaId4 = mpaStorage.findMpaById(4L).get();
-        Mpa mpaId5 = mpaStorage.findMpaById(5L).get();
-        assertThat(mpaList.get(0)).isEqualTo(mpaId1);
-        assertThat(mpaList.get(1)).isEqualTo(mpaId2);
-        assertThat(mpaList.get(2)).isEqualTo(mpaId3);
-        assertThat(mpaList.get(3)).isEqualTo(mpaId4);
-        assertThat(mpaList.get(4)).isEqualTo(mpaId5);
+        assertThat(mpaList).hasSize(5);
+        Mpa mpaIdOne = mpaStorage.findMpaById(1L).get();
+        Mpa mpaIdTwo = mpaStorage.findMpaById(2L).get();
+        Mpa mpaIdThree = mpaStorage.findMpaById(3L).get();
+        Mpa mpaIdFour = mpaStorage.findMpaById(4L).get();
+        Mpa mpaIdFive = mpaStorage.findMpaById(5L).get();
+        assertThat(mpaList.get(0)).isEqualTo(mpaIdOne);
+        assertThat(mpaList.get(1)).isEqualTo(mpaIdTwo);
+        assertThat(mpaList.get(2)).isEqualTo(mpaIdThree);
+        assertThat(mpaList.get(3)).isEqualTo(mpaIdFour);
+        assertThat(mpaList.get(4)).isEqualTo(mpaIdFive);
     }
 }
 

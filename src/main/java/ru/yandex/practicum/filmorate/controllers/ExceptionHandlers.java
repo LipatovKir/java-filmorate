@@ -15,6 +15,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 @Slf4j
 class ExceptionHandlers {
 
+    private static final String OBJECT_NOT_FOUND = "Получен статус 404 Object not found {}";
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMyValidationException(final ValidationException e) {
@@ -25,21 +27,21 @@ class ExceptionHandlers {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFoundException(final UserNotFoundException e) {
-        log.debug("Получен статус 404 Object not found {}", e.getMessage(), e);
+        log.debug(OBJECT_NOT_FOUND, e.getMessage(), e);
         return new ErrorResponse("404", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
-        log.debug("Получен статус 404 Object not found {}", e.getMessage(), e);
+        log.debug(OBJECT_NOT_FOUND, e.getMessage(), e);
         return new ErrorResponse("404", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFilmNotFoundException(final FilmNotFoundException e) {
-        log.debug("Получен статус 404 Object not found {}", e.getMessage(), e);
+        log.debug(OBJECT_NOT_FOUND, e.getMessage(), e);
         return new ErrorResponse("404", e.getMessage());
     }
 

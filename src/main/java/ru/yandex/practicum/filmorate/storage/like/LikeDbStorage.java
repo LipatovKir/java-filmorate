@@ -14,30 +14,36 @@ import static ru.yandex.practicum.filmorate.model.Mappers.LIKE_MAPPER;
 public class LikeDbStorage implements LikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    final String insertIntoLikes = "INSERT INTO LIKES(FILM_ID, USER_ID) VALUES (?, ?)";
-    final String deleteFromLikes = "DELETE FROM LIKES WHERE (FILM_ID = ? AND USER_ID = ?)";
-    final String selectUserFromLikes = "SELECT USER_ID FROM LIKES WHERE FILM_ID =?";
-    final String selectFromLikes = "SELECT * FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
+    private static final String INSERT_INTO_LIKES_FILM_ID_USER_ID_VALUES =
+            "INSERT INTO LIKES(FILM_ID, USER_ID) VALUES (?, ?)";
+    private static final String DELETE_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID =
+            "DELETE FROM LIKES WHERE (FILM_ID = ? AND USER_ID = ?)";
+    private static final String SELECT_USER_ID_FROM_LIKES_WHERE_FILM_ID =
+            "SELECT USER_ID FROM LIKES WHERE FILM_ID =?";
+    private static final String SELECT_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID =
+            "SELECT * FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
 
     @Override
     public void addLike(Long filmById, Long userById) {
-        jdbcTemplate.update(insertIntoLikes, filmById, userById);
+        jdbcTemplate.update(INSERT_INTO_LIKES_FILM_ID_USER_ID_VALUES, filmById, userById);
     }
 
     @Override
     public void removeLike(Long filmById, Long userById) {
-        jdbcTemplate.update(deleteFromLikes, filmById, userById);
+        jdbcTemplate.update(DELETE_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, filmById, userById);
     }
 
     @Override
     public List<Long> getLikeByIdFilm(Long filmById) {
-        return jdbcTemplate.query(selectUserFromLikes, (rs, rowNum) -> rs.getLong("user_id"), filmById);
+        return jdbcTemplate.query(SELECT_USER_ID_FROM_LIKES_WHERE_FILM_ID,
+                (rs, rowNum) -> rs.getLong("user_id"),
+                filmById);
     }
 
     @Override
     public boolean isExist(Long filmById, Long userById) {
         try {
-            jdbcTemplate.queryForObject(selectFromLikes, LIKE_MAPPER, filmById, userById);
+            jdbcTemplate.queryForObject(SELECT_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, LIKE_MAPPER, filmById, userById);
             return true;
         } catch (EmptyResultDataAccessException exception) {
             return false;
