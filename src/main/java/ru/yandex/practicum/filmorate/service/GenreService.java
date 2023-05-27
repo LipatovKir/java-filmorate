@@ -24,7 +24,7 @@ public class GenreService {
 
     public Genre findGenreById(long id) {
         Genre genre = genreStorage.findGenreById(id).get();
-        if (genre != null ) {
+        if (genre != null) {
             log.info("Жанр найден = {} ", genre.getId(), genre.getName());
             return genre;
         } else {
