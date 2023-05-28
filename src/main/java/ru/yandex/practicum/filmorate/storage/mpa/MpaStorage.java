@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MpaStorage {
+
     Optional<Mpa> findMpaById(long id);
 
     List<Mpa> findAllMpa();

@@ -46,33 +46,33 @@ public class FriendshipDbStorage implements FriendshipStorage {
     @Override
     public void add(Friendship friendship) {
         jdbcTemplate.update(INSERT_INTO_FRIENDSHIP_FIRST_USER_ID_SECOND_USER_ID_VALUES,
-                friendship.getUserOneById(),
-                friendship.getUserTwoById());
+                friendship.getUserId(),
+                friendship.getFriendId());
     }
 
     @Override
     public void put(Friendship friendship) {
         jdbcTemplate.update(UPDATE_SET_STATUS, true,
-                friendship.getUserOneById(),
-                friendship.getUserTwoById(),
-                friendship.getUserTwoById(),
-                friendship.getUserOneById());
+                friendship.getUserId(),
+                friendship.getFriendId(),
+                friendship.getFriendId(),
+                friendship.getUserId());
     }
 
     @Override
     public Optional<Friendship> findFriendship(Friendship friendship) {
         try {
             friendship = jdbcTemplate.queryForObject(SELECT_FROM_FRIENDSHIP, FRIENDSHIP_MAPPER,
-                    friendship.getUserOneById(),
-                    friendship.getUserTwoById(),
-                    friendship.getUserTwoById(),
-                    friendship.getUserOneById());
+                    friendship.getUserId(),
+                    friendship.getFriendId(),
+                    friendship.getFriendId(),
+                    friendship.getUserId());
             checkFriendship(friendship);
             return Optional.ofNullable(friendship);
         } catch (EmptyResultDataAccessException exception) {
             log.info("Пользователь id{} и пользователь id {} пока не друзья ",
-                    friendship.getUserOneById(),
-                    friendship.getUserTwoById());
+                    friendship.getUserId(),
+                    friendship.getFriendId());
             return Optional.empty();
         }
     }
@@ -80,19 +80,19 @@ public class FriendshipDbStorage implements FriendshipStorage {
     @Override
     public void delete(Friendship friendship) {
         jdbcTemplate.update(DELETE_FROM_FRIENDSHIP,
-                friendship.getUserOneById(),
-                friendship.getUserTwoById(),
-                friendship.getUserTwoById(),
-                friendship.getUserOneById());
+                friendship.getUserId(),
+                friendship.getFriendId(),
+                friendship.getFriendId(),
+                friendship.getUserId());
     }
 
     @Override
     public boolean status(Friendship friendship) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(SELECT_STATUS_FRIENDSHIP,
-                friendship.getUserOneById(),
-                friendship.getUserTwoById(),
-                friendship.getUserTwoById(),
-                friendship.getUserOneById());
+                friendship.getUserId(),
+                friendship.getFriendId(),
+                friendship.getFriendId(),
+                friendship.getUserId());
         if (userRows.next()) {
             return userRows.getBoolean("status");
         } else {
@@ -104,11 +104,6 @@ public class FriendshipDbStorage implements FriendshipStorage {
         if (friendship == null) {
             throw new ObjectNotFoundException("Друзья не найдены.");
         }
-    }
-
-    @Override
-    public boolean isExist(Friendship friendship) {
-        return findFriendship(friendship).isPresent();
     }
 }
 

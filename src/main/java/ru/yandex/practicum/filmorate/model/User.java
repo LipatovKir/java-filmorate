@@ -20,6 +20,7 @@ public class User {
     @NotBlank
     private final String login;
     @PastOrPresent
+    @NotNull
     private final LocalDate birthday;
     private List<Long> friends = new ArrayList<>();
 }

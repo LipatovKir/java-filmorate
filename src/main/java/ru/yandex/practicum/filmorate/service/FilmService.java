@@ -49,7 +49,7 @@ public class FilmService {
     }
 
     public Film createFilm(Film film) {
-        if (Validator.validateFilm(film) && !Validator.validateReleaseDateFilm(film)) {
+        if (Validator.validateFilm(film)) {
             Film filmNew = appointGenre(film);
             log.info("Добавлен новый фильм: {}", film.getName());
             return filmStorage.addFilm(filmNew);
@@ -60,7 +60,7 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        if (filmStorage.existsById(film.getId())) {
+        if (filmStorage.findFilmById(film.getId()).isPresent()) {
             filmStorage.putFilm(film);
             Film filmNew = appointGenre(film);
             filmStorage.removeGenreFilm(filmNew.getId());
@@ -79,7 +79,7 @@ public class FilmService {
     }
 
     public Film deleteFilm(Film film) {
-        if (filmStorage.existsById(film.getId())) {
+        if (filmStorage.findFilmById(film.getId()).isPresent()) {
             filmStorage.deleteFilm(film);
             filmStorage.removeGenreFilm(film.getId());
         } else {
@@ -92,9 +92,8 @@ public class FilmService {
 
     public Optional<Film> findFilmById(String filmById) {
         long id = Validator.convertToLongFilm(filmById);
-        Optional<Film> optFilm = filmStorage.findFilmById(id);
-        if (optFilm.isPresent()) {
-            Film film = optFilm.get();
+        if (filmStorage.findFilmById(id).isPresent()) {
+            Film film = filmStorage.findFilmById(id).get();
             film = new Film(film.getId(),
                     film.getName(),
                     film.getDescription(),
@@ -113,23 +112,22 @@ public class FilmService {
     public List<Film> sortFilmByLike(String count) {
         long size = Validator.convertToLongFilm(count);
         log.info("Список фильмов отсортирован по их популярности");
-        return findAllFilms().stream().sorted((filmOne, filmTwo) ->
-                        filmTwo.getLikes().size() - filmOne.
-                                getLikes().
-                                size()).
-                limit(size).
-                collect(Collectors.toList());
+        return findAllFilms()
+                .stream()
+                .sorted((filmOne, filmTwo) -> filmTwo.getLikes().size() - filmOne.getLikes().size())
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     public Film addLikeFilm(String film, String user) {
-        long filmById = Validator.convertToLongFilm(film);
-        long userById = Validator.convertToLongFilm(user);
-        Film filmTwo = filmStorage.findFilmById(filmById).get();
-        if (likeStorage.isExist(filmById, userById)) {
+        long filmId = Validator.convertToLongFilm(film);
+        long userId = Validator.convertToLongFilm(user);
+        Film filmTwo = filmStorage.findFilmById(filmId).get();
+        if (likeStorage.isExist(filmId, userId)) {
             log.error("Пользователь уже оценил этот фильм лайком.");
             throw new WorkApplicationException("Пользователь уже оценил этот фильм лайком.");
         } else {
-            likeStorage.addLike(filmById, userById);
+            likeStorage.addLike(filmId, userId);
             filmTwo = new Film(filmTwo.getId(),
                     filmTwo.getName(),
                     filmTwo.getDescription(),
@@ -138,35 +136,37 @@ public class FilmService {
                     mpaStorage.findMpaById(filmTwo.getMpa().getId()).get());
             filmTwo.getGenres().addAll(filmStorage.getGenreFilmById(filmTwo.getId()));
             filmTwo.getLikes().addAll(likeStorage.getLikeByIdFilm(filmTwo.getId()));
-            log.info("Пользователь" + userById + "Оценил лайком №" + filmById);
+            log.info("Пользователь" + userId + "Оценил лайком №" + filmId);
             return filmTwo;
         }
     }
 
     public Film removeLikeFilm(String film, String user) {
-        long filmById = Validator.convertToLongFilm(film);
-        long userById = Validator.convertToLongFilm(user);
-        Film filmOne = filmStorage.findFilmById(filmById).get();
-        if (!likeStorage.isExist(filmById, userById)) {
+        long filmId = Validator.convertToLongFilm(film);
+        long userId = Validator.convertToLongFilm(user);
+        Film filmOne = filmStorage.findFilmById(filmId).get();
+        if (!likeStorage.isExist(filmId, userId)) {
             log.error("Пользователь не оценивал этот фильм.");
             throw new WorkApplicationException("Пользователь не оценивал этот фильм.");
         }
-        likeStorage.removeLike(filmById, userById);
-        log.info("Пользователь" + userById + " удалил свой лайк у фильма №" + filmById);
+        likeStorage.removeLike(filmId, userId);
+        log.info("Пользователь" + userId + " удалил свой лайк у фильма №" + filmId);
         return filmOne;
     }
 
     public Film appointGenre(Film film) {
         Film filmNew = new Film(film.getId(),
-                film.getName(), film.getDescription(),
+                film.getName(),
+                film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 mpaStorage.findMpaById(film.getMpa().getId()).get());
         if (!film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
-                film.getGenres().contains(genreStorage.findGenreById(genre.getId()).get());
-                filmNew.getGenres().remove(genreStorage.findGenreById(genre.getId()).get());
-                filmNew.getGenres().add(genreStorage.findGenreById(genre.getId()).get());
+                Genre genreNew = genreStorage.findGenreById(genre.getId()).get();
+                film.getGenres().contains(genreNew);
+                filmNew.getGenres().remove(genreNew);
+                filmNew.getGenres().add(genreNew);
             }
         }
         return filmNew;

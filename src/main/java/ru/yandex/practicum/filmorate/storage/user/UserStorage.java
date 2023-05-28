@@ -13,8 +13,6 @@ public interface UserStorage {
 
     Optional<User> findUserById(Long id);
 
-    boolean existsUserById(Long id);
-
     void deleteUser(User user);
 
     List<User> getAllUsers();

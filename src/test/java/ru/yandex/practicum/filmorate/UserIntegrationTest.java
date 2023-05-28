@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,22 +23,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
 class UserIntegrationTest {
 
-    final UserStorage userStorage;
-    final String testEmail = "test@yandex.ru";
-    final String testName = "Lipatov Kirill";
-    final String testLogin = "lipatovKIR";
-    final LocalDate testBirthday = LocalDate.of(1982, 10, 9);
-    final String testOneName = "Liftoff Kirill";
-    final String testOneEmail = "tests@yandex.ru";
-    final String testOneLogin = "lipatoffKIR";
-    static User userOne;
-    static User userTwo;
-
-    @BeforeEach
-    void beforeEach() {
-        userOne = new User(null, testEmail, testName, testLogin, testBirthday);
-        userTwo = new User(null, testOneEmail, testOneName, testOneLogin, testBirthday);
-    }
+    private final UserStorage userStorage;
+    private final String testEmail = "test@yandex.ru";
+    private final String testName = "Lipatov Kirill";
+    private final String testLogin = "lipatovKIR";
+    private final LocalDate testBirthday = LocalDate.of(1982, 10, 9);
+    private final String testOneName = "Liftoff Kirill";
+    private final String testOneEmail = "tests@yandex.ru";
+    private final String testOneLogin = "lipatoffKIR";
+    private final User userOne = new User(null, testEmail, testName, testLogin, testBirthday);
+    private final User userTwo = new User(null, testOneEmail, testOneName, testOneLogin, testBirthday);
 
     @AfterEach
     void afterEach() {
@@ -61,13 +54,7 @@ class UserIntegrationTest {
     @Test
     void shouldNotCreateUserWithNoValidEmail() {
         User userOne = new User(null, null, testName, testLogin, testBirthday);
-        try {
-            userStorage.addUser(userOne);
-            assertThrows(DataIntegrityViolationException.class, () -> {
-            });
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Электронная почта некорректна или не содержит символ @");
-        }
+        assertThrows(DataIntegrityViolationException.class, () -> userStorage.addUser(userOne));
     }
 
     @Test
@@ -95,25 +82,13 @@ class UserIntegrationTest {
     @Test
     void shouldNotCreateUserWithNotValidLogin() {
         User userNew = new User(null, testEmail, testName, null, testBirthday);
-        try {
-            userStorage.addUser(userNew);
-            assertThrows(DataIntegrityViolationException.class, () -> {
-            });
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Логин некорректен.");
-        }
+        assertThrows(DataIntegrityViolationException.class, () -> userStorage.addUser(userNew));
     }
 
     @Test
     void shouldNotCreateUserWithFutureBirthday() {
         User user = new User(null, testEmail, testName, testLogin, LocalDate.of(2023, 6, 30));
-        try {
-            userStorage.addUser(user);
-            assertThrows(DataIntegrityViolationException.class, () -> {
-            });
-        } catch (DataIntegrityViolationException e) {
-            System.out.println("Дата рождения некорректна.");
-        }
+        assertThrows(DataIntegrityViolationException.class, () -> userStorage.addUser(user));
         assertTrue(userStorage.getAllUsers().isEmpty());
         User userNew = new User(null, testEmail, testName, testLogin, LocalDate.of(2023, 4, 7));
         userStorage.addUser(userNew);
@@ -122,8 +97,8 @@ class UserIntegrationTest {
 
     @Test
     void shouldFindUserById() {
-        final long id = userStorage.addUser(userOne).getId();
-        final Optional<User> userOptional = userStorage.findUserById(id);
+        long id = userStorage.addUser(userOne).getId();
+        Optional<User> userOptional = userStorage.findUserById(id);
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
@@ -137,9 +112,9 @@ class UserIntegrationTest {
 
     @Test
     void shouldFindAllUsers() {
-        final User userNew = userStorage.addUser(userOne);
-        final User userLast = userStorage.addUser(userTwo);
-        final List<User> allUsers = userStorage.getAllUsers();
+        User userNew = userStorage.addUser(userOne);
+        User userLast = userStorage.addUser(userTwo);
+        List<User> allUsers = userStorage.getAllUsers();
         assertThat(allUsers).isNotNull().hasSize(2);
         assertTrue(allUsers.contains(userNew));
         assertTrue(allUsers.contains(userLast));
@@ -147,10 +122,10 @@ class UserIntegrationTest {
 
     @Test
     void shouldDeleteUser() {
-        final User user = userStorage.addUser(userOne);
-        final long id = user.getId();
+        User user = userStorage.addUser(userOne);
+        long id = user.getId();
         userStorage.deleteUser(user);
-        final Optional<User> userOptional = userStorage.findUserById(id);
+        Optional<User> userOptional = userStorage.findUserById(id);
         assertFalse(userOptional.isPresent());
     }
 }

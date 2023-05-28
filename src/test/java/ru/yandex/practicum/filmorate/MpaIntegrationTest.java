@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
 class MpaIntegrationTest {
 
-    final MpaStorage mpaStorage;
+    private final MpaStorage mpaStorage;
 
     @Test
     void shouldFindMpaById() {

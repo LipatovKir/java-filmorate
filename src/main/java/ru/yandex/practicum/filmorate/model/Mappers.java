@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 
 @UtilityClass
 public class Mappers {
+
     public static final RowMapper<User> USER_MAPPER = (ResultSet rs, int rowNum) ->
             new User(rs.getLong("user_id"),
                     rs.getString("email"),

@@ -95,20 +95,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> findFilmById(Long filmById) {
+    public Optional<Film> findFilmById(Long filmId) {
         try {
-            Film film = jdbcTemplate.queryForObject(SELECT_FROM_FILMS_WHERE_FILM_ID, FILM_MAPPER, filmById);
-            assert film != null;
+            Film film = jdbcTemplate.queryForObject(SELECT_FROM_FILMS_WHERE_FILM_ID, FILM_MAPPER, filmId);
+            Objects.requireNonNull(film);
             return Optional.of(film);
         } catch (EmptyResultDataAccessException exception) {
-            log.info("Фильм id{} не найден.", filmById);
+            log.info("Фильм id{} не найден.", filmId);
             return Optional.empty();
         }
     }
 
     @Override
-    public void addGenreToFilm(long filmById, long genreById) {
-        jdbcTemplate.update(INSERT_INTO_FILMS_GENRE_FILM, filmById, genreById);
+    public void addGenreToFilm(long filmId, long genreId) {
+        jdbcTemplate.update(INSERT_INTO_FILMS_GENRE_FILM, filmId, genreId);
     }
 
     @Override
@@ -117,12 +117,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void removeGenreFilm(long filmById) {
-        jdbcTemplate.update(DELETE_FROM_FILMS_GENRE_WHERE_FILM_ID, filmById);
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        return findFilmById(id).isPresent();
+    public void removeGenreFilm(long filmId) {
+        jdbcTemplate.update(DELETE_FROM_FILMS_GENRE_WHERE_FILM_ID, filmId);
     }
 }

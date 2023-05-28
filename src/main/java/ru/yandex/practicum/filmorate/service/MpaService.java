@@ -24,9 +24,8 @@ public class MpaService {
     }
 
     public Mpa findMpaById(long id) {
-        Optional<Mpa> optMpa = mpaStorage.findMpaById(id);
-        if (optMpa.isPresent()) {
-            Mpa mpa = optMpa.get();
+        if (mpaStorage.findMpaById(id).isPresent()) {
+            Mpa mpa = mpaStorage.findMpaById(id).get();
             log.info("Рейтинг-MРА id {}, название {}", mpa.getId(), mpa.getName());
             return mpa;
         } else {

@@ -1,11 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.WorkApplicationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -67,10 +69,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    @SneakyThrows(WorkApplicationException.class)
     public Optional<User> findUserById(Long id) {
         try {
             User user = jdbcTemplate.queryForObject(SELECT_FROM_USERS_WHERE_USER_ID, USER_MAPPER, id);
-            assert user != null;
+            Objects.requireNonNull(user);
             return Optional.of(user);
         } catch (EmptyResultDataAccessException exception) {
             log.info("Пользователь с id {} не найден.", id);
@@ -79,16 +82,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public boolean existsUserById(Long id) {
-        return findUserById(id).isPresent();
-    }
-
-    @Override
     public void deleteUser(User user) {
         jdbcTemplate.update(DELETE_FROM_USERS_WHERE_USER_ID, user.getId());
     }
 
     @Override
+    @SneakyThrows(WorkApplicationException.class)
     public List<User> getAllUsers() {
         try {
             return jdbcTemplate.query(SELECT_FROM_USERS, USER_MAPPER);

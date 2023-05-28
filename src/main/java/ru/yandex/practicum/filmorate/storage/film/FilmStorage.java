@@ -18,12 +18,10 @@ public interface FilmStorage {
 
     Optional<Film> findFilmById(Long filmId);
 
-    void addGenreToFilm(long filmById, long genreById);
+    void addGenreToFilm(long filmId, long genreId);
 
     List<Genre> getGenreFilmById(long id);
 
-    void removeGenreFilm(long filmById);
-
-    boolean existsById(Long id);
+    void removeGenreFilm(long filmId);
 }
 

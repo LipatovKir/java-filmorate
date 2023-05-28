@@ -39,14 +39,6 @@ public class Validator {
         return true;
     }
 
-    public static boolean validateReleaseDateFilm(Film film) {
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-            log.error(FIRST_FILM_RELEASE);
-            throw new ValidationException(FIRST_FILM_RELEASE);
-        }
-        return false;
-    }
-
     public static void validateUser(User user) {
         if (StringUtils.isBlank(user.getEmail()) || !StringUtils.containsAny(user.getEmail(), "@")) {
             log.info("Электронная почта некорректна или не содержит символ @");

@@ -52,8 +52,8 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film deleteLike(@PathVariable("id") String id,
-                           @PathVariable("userId") String userById) {
-        return filmService.removeLikeFilm(id, userById);
+                           @PathVariable("userId") String userId) {
+        return filmService.removeLikeFilm(id, userId);
     }
 
     @GetMapping("/popular")

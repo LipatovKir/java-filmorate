@@ -18,6 +18,4 @@ public interface FriendshipStorage {
     void delete(Friendship friendship);
 
     boolean status(Friendship friendship);
-
-    boolean isExist(Friendship friendship);
 }

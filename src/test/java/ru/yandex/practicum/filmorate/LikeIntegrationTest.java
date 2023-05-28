@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -26,34 +25,27 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
 class LikeIntegrationTest {
 
-    final LikeStorage likeStorage;
-    final FilmStorage filmStorage;
-    final UserStorage userStorage;
-    static Film filmOne;
-    static User userOne;
-    static User userTwo;
-    static LocalDate testBirthday = LocalDate.of(1982, 10, 9);
-    static LocalDate correctReleaseDate = LocalDate.of(1895, Month.DECEMBER, 29);
-
-    @BeforeEach
-    void beforeEach() {
-        filmOne = new Film(null,
-                "Новое кино1",
-                "Описание нового фильма1",
-                correctReleaseDate,
-                100,
-                new Mpa(1L));
-        userOne = new User(null,
-                "test@yandex.ru",
-                "Lipatov Kirill",
-                "lipatovKIR",
-                testBirthday);
-        userTwo = new User(null,
-                "tests@yandex.ru",
-                "Yandex Kirill",
-                "yandexKIR",
-                testBirthday);
-    }
+    private final LikeStorage likeStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+    private final LocalDate testBirthday = LocalDate.of(1982, 10, 9);
+    private final LocalDate correctReleaseDate = LocalDate.of(1895, Month.DECEMBER, 29);
+    private final Film filmOne = new Film(null,
+            "Новое кино1",
+            "Описание нового фильма1",
+            correctReleaseDate,
+            100,
+            new Mpa(1L));
+    private final User userOne = new User(null,
+            "test@yandex.ru",
+            "Lipatov Kirill",
+            "lipatovKIR",
+            testBirthday);
+    private final User userTwo = new User(null,
+            "tests@yandex.ru",
+            "Yandex Kirill",
+            "yandexKIR",
+            testBirthday);
 
     @AfterEach
     void afterEach() {
@@ -63,19 +55,19 @@ class LikeIntegrationTest {
 
     @Test
     void shouldAddAndDeleteLikeFilm() {
-        final Film film = filmStorage.addFilm(filmOne);
-        final User user11 = userStorage.addUser(userOne);
-        final User user22 = userStorage.addUser(userTwo);
-        likeStorage.addLike(film.getId(), user11.getId());
-        likeStorage.addLike(film.getId(), user22.getId());
-        final List<Long> likeList = likeStorage.getLikeByIdFilm(film.getId());
+        Film film = filmStorage.addFilm(filmOne);
+        User userTest = userStorage.addUser(userOne);
+        User userTestTwo = userStorage.addUser(userTwo);
+        likeStorage.addLike(film.getId(), userTest.getId());
+        likeStorage.addLike(film.getId(), userTestTwo.getId());
+        List<Long> likeList = likeStorage.getLikeByIdFilm(film.getId());
         assertThat(likeList).hasSize(2);
-        assertThat(likeList.get(0)).isEqualTo(user11.getId());
-        assertThat(likeList.get(1)).isEqualTo(user22.getId());
-        likeStorage.removeLike(film.getId(), user11.getId());
-        final List<Long> afterDellikeList = likeStorage.getLikeByIdFilm(film.getId());
+        assertThat(likeList.get(0)).isEqualTo(userTest.getId());
+        assertThat(likeList.get(1)).isEqualTo(userTestTwo.getId());
+        likeStorage.removeLike(film.getId(), userTest.getId());
+        List<Long> afterDellikeList = likeStorage.getLikeByIdFilm(film.getId());
         assertThat(afterDellikeList).hasSize(1);
-        assertFalse(afterDellikeList.contains(user11.getId()));
-        assertThat(afterDellikeList.get(0)).isEqualTo(user22.getId());
+        assertFalse(afterDellikeList.contains(userTest.getId()));
+        assertThat(afterDellikeList.get(0)).isEqualTo(userTestTwo.getId());
     }
 }

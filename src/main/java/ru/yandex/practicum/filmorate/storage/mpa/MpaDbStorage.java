@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static ru.yandex.practicum.filmorate.model.Mappers.MPA_MAPPER;
@@ -26,7 +27,7 @@ public class MpaDbStorage implements MpaStorage {
     public Optional<Mpa> findMpaById(long id) {
         try {
             Mpa mpa = jdbcTemplate.queryForObject(SELECT_FROM_MPA_WHERE_MPA_ID, MPA_MAPPER, id);
-            assert mpa != null;
+            Objects.requireNonNull(mpa);
             log.info("Рейтинг-MРА id {} название {}", mpa.getId(), mpa.getName());
             return Optional.of(mpa);
         } catch (EmptyResultDataAccessException exception) {

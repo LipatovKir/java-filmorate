@@ -38,8 +38,8 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public Optional<User> findUserById(@PathVariable("userId") String userById) {
-        return userService.findUserById(userById);
+    public Optional<User> findUserById(@PathVariable("userId") String userId) {
+        return userService.findUserById(userId);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

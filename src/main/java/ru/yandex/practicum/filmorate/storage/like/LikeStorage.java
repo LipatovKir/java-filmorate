@@ -4,12 +4,12 @@ import java.util.List;
 
 public interface LikeStorage {
 
-    void addLike(Long filmById, Long userById);
+    void addLike(Long filmId, Long userId);
 
-    void removeLike(Long filmById, Long userById);
+    void removeLike(Long filmId, Long userId);
 
-    List<Long> getLikeByIdFilm(Long filmById);
+    List<Long> getLikeByIdFilm(Long filmId);
 
-    boolean isExist(Long filmById, Long userById);
+    boolean isExist(Long filmId, Long userId);
 }
 

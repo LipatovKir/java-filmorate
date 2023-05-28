@@ -24,26 +24,26 @@ public class LikeDbStorage implements LikeStorage {
             "SELECT * FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?";
 
     @Override
-    public void addLike(Long filmById, Long userById) {
-        jdbcTemplate.update(INSERT_INTO_LIKES_FILM_ID_USER_ID_VALUES, filmById, userById);
+    public void addLike(Long filmId, Long userId) {
+        jdbcTemplate.update(INSERT_INTO_LIKES_FILM_ID_USER_ID_VALUES, filmId, userId);
     }
 
     @Override
-    public void removeLike(Long filmById, Long userById) {
-        jdbcTemplate.update(DELETE_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, filmById, userById);
+    public void removeLike(Long filmId, Long userId) {
+        jdbcTemplate.update(DELETE_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, filmId, userId);
     }
 
     @Override
-    public List<Long> getLikeByIdFilm(Long filmById) {
+    public List<Long> getLikeByIdFilm(Long filmId) {
         return jdbcTemplate.query(SELECT_USER_ID_FROM_LIKES_WHERE_FILM_ID,
                 (rs, rowNum) -> rs.getLong("user_id"),
-                filmById);
+                filmId);
     }
 
     @Override
-    public boolean isExist(Long filmById, Long userById) {
+    public boolean isExist(Long filmId, Long userId) {
         try {
-            jdbcTemplate.queryForObject(SELECT_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, LIKE_MAPPER, filmById, userById);
+            jdbcTemplate.queryForObject(SELECT_FROM_LIKES_WHERE_FILM_ID_AND_USER_ID, LIKE_MAPPER, filmId, userId);
             return true;
         } catch (EmptyResultDataAccessException exception) {
             return false;

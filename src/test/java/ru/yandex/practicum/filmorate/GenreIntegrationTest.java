@@ -18,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor(onConstructor__ = @Autowired)
 class GenreIntegrationTest {
 
-    final GenreStorage genreStorage;
+    private final GenreStorage genreStorage;
 
     @Test
     void shouldFindGenreById() {
-        final long id = 4L;
-        final Optional<Genre> genreOptional = genreStorage.findGenreById(id);
+        long id = 4L;
+        Optional<Genre> genreOptional = genreStorage.findGenreById(id);
         assertThat(genreOptional)
                 .isPresent()
                 .hasValueSatisfying(genre ->
@@ -34,13 +34,13 @@ class GenreIntegrationTest {
 
     @Test
     void shouldFindAllGenres() {
-        final List<Genre> genreList = genreStorage.findAllGenres();
+        List<Genre> genreList = genreStorage.findAllGenres();
         assertThat(genreList).hasSize(6);
-        Genre genreId1 = genreStorage.findGenreById(1L).get();
-        Genre genreId2 = genreStorage.findGenreById(2L).get();
-        Genre genreId3 = genreStorage.findGenreById(3L).get();
-        assertThat(genreList.get(0)).isEqualTo(genreId1);
-        assertThat(genreList.get(1)).isEqualTo(genreId2);
-        assertThat(genreList.get(2)).isEqualTo(genreId3);
+        Genre genreIdOne = genreStorage.findGenreById(1L).get();
+        Genre genreIdTwo = genreStorage.findGenreById(2L).get();
+        Genre genreIdThree = genreStorage.findGenreById(3L).get();
+        assertThat(genreList.get(0)).isEqualTo(genreIdOne);
+        assertThat(genreList.get(1)).isEqualTo(genreIdTwo);
+        assertThat(genreList.get(2)).isEqualTo(genreIdThree);
     }
 }
