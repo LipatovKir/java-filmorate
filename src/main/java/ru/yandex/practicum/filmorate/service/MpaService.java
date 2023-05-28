@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
