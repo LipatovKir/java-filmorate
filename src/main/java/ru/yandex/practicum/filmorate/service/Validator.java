@@ -18,6 +18,9 @@ public class Validator {
 
     private static final LocalDate startDate = LocalDate.of(1895, Month.DECEMBER, 28);
     private static final LocalDate currentTime = LocalDate.now();
+    private static final String FIRST_FILM_RELEASE =
+            "Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.";
+    private static final String MUST_BE_NUMBER = "\" должно быть числом";
 
     public static boolean validateFilm(Film film) throws ValidationException {
         if (StringUtils.isBlank(film.getName())) {
@@ -27,21 +30,13 @@ public class Validator {
             log.info("Описание фильма превышает 200 символов.");
             return false;
         } else if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-            log.info("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-            throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
+            log.info(FIRST_FILM_RELEASE);
+            throw new ValidationException(FIRST_FILM_RELEASE);
         } else if (film.getDuration() != null && film.getDuration() <= 0) {
             log.info("Продолжительность фильма должна быть положительной");
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
         return true;
-    }
-
-    public static boolean validateReleaseDateFilm(Film film) {
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(startDate)) {
-            log.error("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-            throw new ValidationException("Дата выпуска фильма не может быть раньше первого в истории человечества кинопоказа в Париже.");
-        }
-        return false;
     }
 
     public static void validateUser(User user) {
@@ -62,8 +57,8 @@ public class Validator {
         try {
             count = Long.parseLong(str);
         } catch (NumberFormatException e) {
-            log.error("\"" + str + "\" должно быть числом");
-            throw new ValidationException("\"" + str + "\" должно быть числом");
+            log.error("\"" + str + MUST_BE_NUMBER);
+            throw new ValidationException("\"" + str + MUST_BE_NUMBER);
         }
         if (count <= 0) {
             log.error("\"" + str + "\" значение должно быть положительным");
@@ -77,8 +72,8 @@ public class Validator {
         try {
             count = Long.parseLong(str);
         } catch (NumberFormatException e) {
-            log.error("\"" + str + "\" должно быть числом");
-            throw new ValidationException("\"" + str + "\" должно быть числом");
+            log.error("\"" + str + MUST_BE_NUMBER);
+            throw new ValidationException("\"" + str + MUST_BE_NUMBER);
         }
         if (count <= 0) {
             log.error("\"" + str + "\" значение должно быть положительным");
